@@ -6,6 +6,7 @@ public class PlayerMotor : MonoBehaviour
 {
     [Header("Input")]
     [SerializeField] private InputActionReference moveAction;
+    [SerializeField] private Transform cameraTransform;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 4f;
@@ -51,7 +52,22 @@ public class PlayerMotor : MonoBehaviour
     {
         Vector2 input = moveAction.action.ReadValue<Vector2>();
 
-        Vector3 direction = new Vector3(input.x, 0f, input.y);
+        Vector3 direction;
+
+        if (cameraTransform != null)
+        {
+            Quaternion cameraYaw = Quaternion.Euler(
+                0f,
+                cameraTransform.eulerAngles.y,
+                0f
+            );
+
+            direction = cameraYaw * new Vector3(input.x, 0f, input.y);
+        }
+        else
+        {
+            direction = new Vector3(input.x, 0f, input.y);
+        }
 
         direction = Vector3.ClampMagnitude(direction, 1f);
 
