@@ -482,13 +482,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 888cb3c3f4b2e5941a17f8dcfe942f08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CompanionMotor
-  interactionPoint: {fileID: 2136166680}
-  moveOnStart: 0
-  targetSampleRadius: 0.25
+  sampleRadius: 0.25
   arrivalTolerance: 0.03
   stoppedSpeed: 0.05
-  taskTimeout: 30
-  state: Idle
+  pathCalculationTimeout: 5
 --- !u!114 &464274904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -528,13 +525,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CompanionController
   motor: {fileID: 464274903}
   sensors: {fileID: 464274904}
-  mechanismRoot: {fileID: 1120716585}
-  sensorTarget: {fileID: 2022240659}
-  targetDoor: {fileID: 279169339}
-  sensorAllowsInteraction: 0
-  canActivate: 0
-  activated: 0
-  status: "Haz\u0131r"
+  player: {fileID: 80570695}
+  mechanism: {fileID: 1120716586}
+  commandAction: {fileID: -1930296671592874796, guid: b0db52eae2c4d35418da38dfb6180044, type: 3}
+  waitAction: {fileID: -6911844353899738222, guid: b0db52eae2c4d35418da38dfb6180044, type: 3}
+  followAction: {fileID: 6917674461272658290, guid: b0db52eae2c4d35418da38dfb6180044, type: 3}
+  followStartDistance: 1.5
+  followStopDistance: 1
+  repathInterval: 0.25
+  targetMoveThreshold: 0.2
+  mechanismStopDistance: 0.08
+  taskTimeout: 20
+  state: 1
+  lastMessage: 
 --- !u!1001 &486148376
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1189,6 +1192,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1120716585}
+  - component: {fileID: 1120716586}
   m_Layer: 0
   m_Name: BugMechanism
   m_TagString: Untagged
@@ -1213,6 +1217,22 @@ Transform:
   - {fileID: 2022240659}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1120716586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1120716584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea41f5575b076ee40a383a84483b6f6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompanionMechanism
+  interactionPoint: {fileID: 2136166680}
+  sensorTarget: {fileID: 2022240659}
+  targetDoor: {fileID: 279169339}
+  used: 0
 --- !u!1 &1217388532
 GameObject:
   m_ObjectHideFlags: 0
