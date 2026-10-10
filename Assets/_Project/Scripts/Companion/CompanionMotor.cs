@@ -4,13 +4,9 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class CompanionMotor : MonoBehaviour
 {
-    [Header("Target")]
-    [SerializeField] private Transform interactionPoint;
-    [SerializeField] private bool moveOnStart = false;
-
-    [Header("Checks")]
+    [Header("Navigation")]
     [SerializeField, Min(0.01f)]
-    private float targetSampleRadius = 0.25f;
+    private float sampleRadius = 0.25f;
 
     [SerializeField, Min(0.001f)]
     private float arrivalTolerance = 0.03f;
@@ -18,69 +14,43 @@ public class CompanionMotor : MonoBehaviour
     [SerializeField, Min(0.001f)]
     private float stoppedSpeed = 0.05f;
 
-    [SerializeField, Min(1f)]
-    private float taskTimeout = 30f;
-
-    [Header("Runtime Debug")]
-    [SerializeField] private string state = "Idle";
+    [SerializeField, Min(0.1f)]
+    private float pathCalculationTimeout = 5f;
 
     private NavMeshAgent agent;
     private Vector3 destination;
-    private bool taskActive;
     private float requestTime;
     private int requestFrame;
 
+    public bool IsMoving { get; private set; }
     public bool HasArrived { get; private set; }
+    public bool HasFailed { get; private set; }
+    public string FailureReason { get; private set; }
+
+    public bool PathPending =>
+        agent != null &&
+        agent.isActiveAndEnabled &&
+        agent.isOnNavMesh &&
+        agent.pathPending;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
     }
 
-    private void Start()
+    public bool MoveTo(Vector3 target, float stoppingDistance)
     {
-        if (moveOnStart)
-        {
-            GoToTarget();
-        }
-    }
-
-    [ContextMenu("Go To Target")]
-    public void GoToTarget()
-    {
-        if (!Application.isPlaying)
-        {
-            Debug.LogWarning(
-                "CompanionMotor: Önce Play moduna gir.",
-                this
-            );
-            return;
-        }
-
-        if (agent == null)
-        {
-            agent = GetComponent<NavMeshAgent>();
-        }
-
         HasArrived = false;
-        taskActive = false;
+        HasFailed = false;
+        FailureReason = "";
 
         if (!isActiveAndEnabled ||
+            agent == null ||
             !agent.isActiveAndEnabled ||
             !agent.isOnNavMesh)
         {
-            Fail("Böcek etkin deðil veya NavMesh üzerinde deðil.");
-            return;
-        }
-
-        // Önceki görevi temizle.
-        agent.isStopped = true;
-        agent.ResetPath();
-
-        if (interactionPoint == null)
-        {
-            Fail("Interaction Point alanýna hedef baðlanmamýþ.");
-            return;
+            Fail("Böcek NavMesh üzerinde deðil veya motor etkin deðil.");
+            return false;
         }
 
         NavMeshQueryFilter filter = new NavMeshQueryFilter
@@ -89,55 +59,42 @@ public class CompanionMotor : MonoBehaviour
             areaMask = agent.areaMask
         };
 
-        bool foundTarget = NavMesh.SamplePosition(
-            interactionPoint.position,
+        if (!NavMesh.SamplePosition(
+            target,
             out NavMeshHit hit,
-            targetSampleRadius,
-            filter
-        );
-
-        if (!foundTarget)
+            sampleRadius,
+            filter))
         {
             Fail("Hedefin yakýnýnda uygun NavMesh bulunamadý.");
-            return;
+            return false;
         }
 
         destination = hit.position;
+        agent.stoppingDistance = stoppingDistance;
         agent.isStopped = false;
 
         if (!agent.SetDestination(destination))
         {
             Fail("Yol isteði kabul edilmedi.");
-            return;
+            return false;
         }
 
         requestTime = Time.time;
         requestFrame = Time.frameCount;
-        taskActive = true;
-        state = "Calculating";
-
-        Debug.Log(
-            "Böcek: Hedefe gitme komutu verildi.",
-            this
-        );
+        IsMoving = true;
+        return true;
     }
 
     private void Update()
     {
-        if (!taskActive)
+        if (!IsMoving)
         {
             return;
         }
 
         if (!agent.isActiveAndEnabled || !agent.isOnNavMesh)
         {
-            Fail("Hareket sýrasýnda NavMesh baðlantýsý kayboldu.");
-            return;
-        }
-
-        if (Time.time - requestTime > taskTimeout)
-        {
-            Fail("Süre doldu; hedefe varýþ doðrulanamadý.");
+            Fail("NavMesh baðlantýsý kayboldu.");
             return;
         }
 
@@ -148,13 +105,17 @@ public class CompanionMotor : MonoBehaviour
 
         if (agent.pathPending)
         {
-            state = "Calculating";
+            if (Time.time - requestTime > pathCalculationTimeout)
+            {
+                Fail("Yol hesaplama süresi aþýldý.");
+            }
+
             return;
         }
 
         if (agent.pathStatus != NavMeshPathStatus.PathComplete)
         {
-            Fail("Hedefe tam yol yok: " + agent.pathStatus);
+            Fail("Tam yol bulunamadý: " + agent.pathStatus);
             return;
         }
 
@@ -162,7 +123,11 @@ public class CompanionMotor : MonoBehaviour
 
         if (float.IsInfinity(remaining) || float.IsNaN(remaining))
         {
-            state = "WaitingForDistance";
+            if (Time.time - requestTime > pathCalculationTimeout)
+            {
+                Fail("Kalan yol mesafesi hesaplanamadý.");
+            }
+
             return;
         }
 
@@ -171,7 +136,7 @@ public class CompanionMotor : MonoBehaviour
 
         bool closeOnPath = remaining <= threshold;
 
-        bool closeToDestination =
+        bool closeToGoal =
             Vector3.Distance(agent.nextPosition, destination)
             <= threshold;
 
@@ -179,42 +144,65 @@ public class CompanionMotor : MonoBehaviour
             agent.velocity.sqrMagnitude
             <= stoppedSpeed * stoppedSpeed;
 
-        if (closeOnPath && closeToDestination && slowEnough)
+        if (closeOnPath && closeToGoal && slowEnough)
         {
-            Complete();
+            HaltAgent();
+            IsMoving = false;
+            HasArrived = true;
             return;
         }
 
-        if (!agent.hasPath && !closeToDestination)
+        if (!agent.hasPath && !closeToGoal)
         {
             Fail("Hedefe ulaþmadan yol kayboldu.");
-            return;
         }
-
-        state = "Moving";
     }
 
-    private void Complete()
+    public bool FaceTarget(Vector3 target)
     {
-        taskActive = false;
-        HasArrived = true;
-        state = "Arrived";
+        Vector3 direction = target - transform.position;
+        direction.y = 0f;
 
-        agent.isStopped = true;
-        agent.ResetPath();
+        if (direction.sqrMagnitude < 0.0001f)
+        {
+            return true;
+        }
 
-        Debug.Log(
-            "Böcek: Hedefe baþarýyla ulaþtý.",
-            this
+        Quaternion desiredRotation =
+            Quaternion.LookRotation(direction);
+
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            desiredRotation,
+            360f * Time.deltaTime
         );
+
+        return Quaternion.Angle(
+            transform.rotation,
+            desiredRotation
+        ) <= 2f;
+    }
+
+    public void Stop()
+    {
+        HaltAgent();
+        IsMoving = false;
+        HasArrived = false;
+        HasFailed = false;
+        FailureReason = "";
     }
 
     private void Fail(string reason)
     {
-        taskActive = false;
+        HaltAgent();
+        IsMoving = false;
         HasArrived = false;
-        state = "Failed";
+        HasFailed = true;
+        FailureReason = reason;
+    }
 
+    private void HaltAgent()
+    {
         if (agent != null &&
             agent.isActiveAndEnabled &&
             agent.isOnNavMesh)
@@ -222,39 +210,15 @@ public class CompanionMotor : MonoBehaviour
             agent.isStopped = true;
             agent.ResetPath();
         }
-
-        Debug.LogWarning(
-            "Böcek görevi baþarýsýz: " + reason,
-            this
-        );
     }
 
     private void OnDisable()
     {
-        taskActive = false;
-        HasArrived = false;
-        state = "Disabled";
-
-        if (agent != null &&
-            agent.isActiveAndEnabled &&
-            agent.isOnNavMesh)
-        {
-            agent.isStopped = true;
-            agent.ResetPath();
-        }
+        Stop();
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (interactionPoint != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(
-                interactionPoint.position,
-                0.1f
-            );
-        }
-
         if (!Application.isPlaying ||
             agent == null ||
             !agent.isActiveAndEnabled ||
