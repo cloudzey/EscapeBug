@@ -1,0 +1,17 @@
+﻿{
+    "model":  "llama3.2:3b",
+    "created_at":  "2026-10-10T21:42:15.1049356Z",
+    "message":  {
+                    "role":  "assistant",
+                    "content":  "{\"dialogue\":\"Mektubu gösterdin, ama bu yetmez. Beni geçirmek için daha fazla kanıt neededir.\",\"emotion\":\"angry\",\"action\":\"open_exit\",\"persuaded\":false}"
+                },
+    "done":  true,
+    "done_reason":  "stop",
+    "total_duration":  2731937700,
+    "load_duration":  11455400,
+    "prompt_eval_count":  598,
+    "prompt_eval_cached_count":  597,
+    "prompt_eval_duration":  145018000,
+    "eval_count":  44,
+    "eval_duration":  2565202000
+}
