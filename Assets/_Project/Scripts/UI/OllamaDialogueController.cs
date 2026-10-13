@@ -116,7 +116,30 @@ public class OllamaDialogueController : MonoBehaviour
             yield break;
         }
 
-        view.ShowReply(result.Content);
+        if (!NpcResponseParser.TryParse(
+        result.Content,
+        out NpcResponse npcResponse,
+        out string validationError))
+{
+    Debug.LogWarning(
+        "NPC yanıtı reddedildi: " + validationError +
+        "\nHam yanıt: " + result.Content,
+        this
+    );
+
+    view.ShowError("Yanıt geçersiz: " + validationError);
+    yield break;
+}
+
+view.ShowReply(npcResponse.dialogue);
+
+Debug.Log(
+    $"Doğrulanmış NPC yanıtı — " +
+    $"Eylem: {npcResponse.action}, " +
+    $"Duygu: {npcResponse.emotion}, " +
+    $"İkna: {npcResponse.persuaded}",
+    this
+);
     }
 
     private void OnDisable()
