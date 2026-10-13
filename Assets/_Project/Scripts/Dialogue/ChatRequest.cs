@@ -8,5 +8,7 @@ namespace EscapeBug.Dialogue
         public string model;
         public ChatMessage[] messages;
         public bool stream = false;
+
+        public NpcResponseSchema format = new NpcResponseSchema();
     }
 }
