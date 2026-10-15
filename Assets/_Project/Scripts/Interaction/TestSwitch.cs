@@ -2,20 +2,20 @@ using UnityEngine;
 
 public class TestSwitch : MonoBehaviour, IInteractable
 {
-    [SerializeField] private string displayName = "Test þalteri";
-    [SerializeField] private DoorController targetDoor;
-
-    private bool used;
+    [SerializeField] private string displayName = "Bakim salteri";
+    [SerializeField] private DualSwitchDoorController doorPuzzle;
 
     public string DisplayName =>
-        used ? displayName + " (kullanýldý)" : displayName;
+        doorPuzzle != null && doorPuzzle.PlayerSwitchUsed
+            ? displayName + " (kullanildi)"
+            : displayName;
 
     private void Awake()
     {
-        if (targetDoor == null)
+        if (doorPuzzle == null)
         {
             Debug.LogError(
-                "TestSwitch: Target Door alanýna kapýyý baðla.",
+                "TestSwitch: Door Puzzle baglantisi eksik.",
                 this
             );
 
@@ -25,27 +25,18 @@ public class TestSwitch : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        if (!isActiveAndEnabled || used)
-        {
+        if (!isActiveAndEnabled)
             return;
-        }
 
-        if (targetDoor == null || !targetDoor.isActiveAndEnabled)
+        if (doorPuzzle == null || !doorPuzzle.IsReady)
         {
             Debug.LogWarning(
-                "TestSwitch: Hedef kapý eksik veya devre dýþý.",
+                "TestSwitch: Kapi bulmacasi hazir degil.",
                 this
             );
-
             return;
         }
 
-        used = true;
-        targetDoor.Open();
-
-        Debug.Log(
-            "Þalter kullanýldý; kapýya Open çaðrýsý gönderildi.",
-            this
-        );
+        doorPuzzle.TryActivatePlayerSwitch();
     }
 }
