@@ -267,7 +267,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &279169338
 Transform:
   m_ObjectHideFlags: 0
@@ -583,11 +583,23 @@ PrefabInstance:
       propertyPath: m_Name
       value: MaintenenceRoom
       objectReference: {fileID: 0}
+    - target: {fileID: 6747026477036640221, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7079455224584342150, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 7170226575743151367, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7214179262872171234, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7521809668641536820, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
@@ -639,6 +651,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9059508751771441018, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -649,6 +665,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6028569563265210907, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
       insertIndex: -1
       addedObject: {fileID: 486148378}
+    - targetCorrespondingSourceObject: {fileID: 950672153481944643, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1076150252}
+    - targetCorrespondingSourceObject: {fileID: 950672153481944643, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1076150253}
   m_SourcePrefab: {fileID: 100100000, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
 --- !u!1 &486148377 stripped
 GameObject:
@@ -690,6 +712,11 @@ MonoBehaviour:
 --- !u!4 &486148379 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8876757912040194147, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
+  m_PrefabInstance: {fileID: 486148376}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &537993635 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5413675690002754407, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
   m_PrefabInstance: {fileID: 486148376}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &647008835
@@ -1184,6 +1211,41 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1076150250 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 950672153481944643, guid: c3aaea3b28c8c6a43bb15f5604027c56, type: 3}
+  m_PrefabInstance: {fileID: 486148376}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1076150252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1076150250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df8828fc54c813f4cb75c44e51067391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoorController
+  doorVisual: {fileID: 537993635}
+  openOffset: {x: 0, y: 2.5, z: 0}
+  openDuration: 1
+--- !u!114 &1076150253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1076150250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 817481f92c7db1846a8416a1a7ce9e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DualSwitchDoorController
+  targetDoor: {fileID: 1076150252}
+  playerSwitchUsed: 0
+  companionSwitchUsed: 0
 --- !u!1 &1120716584
 GameObject:
   m_ObjectHideFlags: 0
@@ -1210,7 +1272,7 @@ Transform:
   m_GameObject: {fileID: 1120716584}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.59, y: 0.1, z: 3.28}
+  m_LocalPosition: {x: 2.01, y: 0.1, z: 3.28}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1232,8 +1294,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CompanionMechanism
   interactionPoint: {fileID: 2136166680}
   sensorTarget: {fileID: 2022240659}
-  targetDoor: {fileID: 279169339}
-  used: 0
+  doorPuzzle: {fileID: 1076150253}
 --- !u!1 &1217388532
 GameObject:
   m_ObjectHideFlags: 0
@@ -1552,13 +1613,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1399739810}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 1.3, z: 0}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 5.053, y: 1.327, z: 1.827}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.15}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1239551580}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &1399739812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1571,8 +1632,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5141b95e93dfb6d4c8628d120f73df6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestSwitch
-  displayName: "Test \u015Falteri"
-  targetDoor: {fileID: 279169339}
+  displayName: "Bak\u0131m \u015Ealteri"
+  doorPuzzle: {fileID: 1076150253}
 --- !u!65 &1399739813
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2006,7 +2067,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1975171933
 Transform:
   m_ObjectHideFlags: 0
@@ -2156,7 +2217,7 @@ Transform:
   m_GameObject: {fileID: 2136166679}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.59, y: 0.1, z: 2.94}
+  m_LocalPosition: {x: 2.01, y: 0.1, z: 2.94}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

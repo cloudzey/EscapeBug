@@ -4,10 +4,7 @@ public class CompanionMechanism : MonoBehaviour
 {
     [SerializeField] private Transform interactionPoint;
     [SerializeField] private Transform sensorTarget;
-    [SerializeField] private DoorController targetDoor;
-
-    [Header("Runtime")]
-    [SerializeField] private bool used;
+    [SerializeField] private DualSwitchDoorController doorPuzzle;
 
     public Transform InteractionPoint => interactionPoint;
     public Transform SensorTarget => sensorTarget;
@@ -16,28 +13,21 @@ public class CompanionMechanism : MonoBehaviour
         isActiveAndEnabled &&
         interactionPoint != null &&
         sensorTarget != null &&
-        targetDoor != null &&
-        targetDoor.isActiveAndEnabled;
+        doorPuzzle != null &&
+        doorPuzzle.IsReady;
 
     public bool IsUsed =>
-        used ||
-        (targetDoor != null &&
-         (targetDoor.IsOpen || targetDoor.IsOpening));
+        doorPuzzle != null &&
+        doorPuzzle.CompanionSwitchUsed;
 
     public bool TryActivate()
     {
         if (!IsReady)
-        {
             return false;
-        }
 
         if (IsUsed)
-        {
             return true;
-        }
 
-        targetDoor.Open();
-        used = true;
-        return true;
+        return doorPuzzle.TryActivateCompanionSwitch();
     }
 }
