@@ -13,6 +13,9 @@ public class DialogueView : MonoBehaviour
     [SerializeField] private TMP_Text errorText;
     [SerializeField] private ScrollRect replyScroll;
 
+    [Header("Duygu gostergesi")]
+    [SerializeField] private TMP_Text emotionText;
+
     [Header("Gonderilecek oyuncu mesaji")]
     [SerializeField] private UnityEvent<string> onMessageSubmitted =
         new UnityEvent<string>();
@@ -21,10 +24,10 @@ public class DialogueView : MonoBehaviour
 
     private void Awake()
     {
-        // Gelen metni TMP bicimlendirme komutu olarak yorumlama.
         replyText.richText = false;
         errorText.richText = false;
 
+        ShowEmotion("");
         busyText.gameObject.SetActive(false);
         errorText.gameObject.SetActive(false);
     }
@@ -94,9 +97,37 @@ public class DialogueView : MonoBehaviour
         messageInput.SetTextWithoutNotify("");
         SetBusy(false);
 
-        // Yeni cevabi en ustten goster.
         Canvas.ForceUpdateCanvases();
         replyScroll.verticalNormalizedPosition = 1f;
+    }
+
+    public void ShowEmotion(string emotion)
+    {
+        if (emotionText == null)
+            return;
+
+        switch (emotion)
+        {
+            case "angry":
+                emotionText.text = "Duygu: Kızgın";
+                emotionText.color = new Color32(255, 140, 120, 255);
+            break;
+
+            case "suspicious":
+                emotionText.text = "Duygu: Şüpheci";
+                emotionText.color = new Color32(255, 210, 100, 255);
+            break;
+
+            case "calm":
+                emotionText.text = "Duygu: Sakin";
+                emotionText.color = new Color32(230, 230, 230, 255);
+            break;
+
+            default:
+                emotionText.text = "Duygu: —";
+                emotionText.color = Color.white;
+            break;
+        }
     }
 
     public void ShowError(string message)
@@ -107,7 +138,5 @@ public class DialogueView : MonoBehaviour
 
         errorText.gameObject.SetActive(true);
         SetBusy(false);
-
-        // Hata durumunda oyuncunun yazdigi mesaj korunur.
     }
 }
