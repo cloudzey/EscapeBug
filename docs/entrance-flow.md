@@ -97,7 +97,7 @@ Geçiş sırasında:
 3. `GameProgress.maintenanceEntered = true` yapılır.
 4. D0 kapısının kapanması tetiklenir.
 
-D0–D5 Kapı Durumları
+## D0–D5 Kapı Durumları
 
 Bu bölüm, oyun tasarımında planlanan kapıların açılma koşullarını ve mevcut geliştirme durumlarını kaydetmektedir.
 
