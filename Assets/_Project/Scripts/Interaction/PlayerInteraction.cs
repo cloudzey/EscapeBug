@@ -28,7 +28,7 @@ public class PlayerInteraction : MonoBehaviour
         {
             Debug.LogError(
                 "PlayerInteraction: Interaction Origin, Camera Transform " +
-                "ve Interact Action alanlarýný doldur.",
+                "ve Interact Action alanlarï¿½nï¿½ doldur.",
                 this
             );
 
@@ -41,7 +41,7 @@ public class PlayerInteraction : MonoBehaviour
         {
             Debug.LogError(
                 "PlayerInteraction: Interaction Mask ve Visibility Mask " +
-                "Nothing olmamalý.",
+                "Nothing olmamalï¿½.",
                 this
             );
 
@@ -63,17 +63,26 @@ public class PlayerInteraction : MonoBehaviour
         currentTargetBehaviour = null;
     }
 
-    private void Update()
+   
+private void Update()
+{
+    if (PlayerControlLocks.IsLocked)
     {
-        FindTarget();
-
-        if (interactAction.action.WasPressedThisFrame() &&
-            currentTargetBehaviour != null &&
-            currentTargetBehaviour.isActiveAndEnabled)
-        {
-            currentTarget.Interact();
-        }
+        currentTarget = null;
+        currentTargetBehaviour = null;
+        return;
     }
+
+    FindTarget();
+
+    if (interactAction.action.WasPressedThisFrame() &&
+        currentTargetBehaviour != null &&
+        currentTargetBehaviour.isActiveAndEnabled)
+    {
+        currentTarget.Interact();
+    }
+}
+
 
     private void FindTarget()
     {

@@ -19,7 +19,7 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         if (target == null)
         {
-            Debug.LogError("Kameranýn Target alanýna Player atanmalý.", this);
+            Debug.LogError("Kameranï¿½n Target alanï¿½na Player atanmalï¿½.", this);
             enabled = false;
             return;
         }
@@ -29,6 +29,11 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private void Update()
     {
+        if (PlayerControlLocks.IsLocked)
+{
+    ReleaseCursor();
+    return;
+}
         if (Keyboard.current != null &&
             Keyboard.current.escapeKey.wasPressedThisFrame)
         {
@@ -39,7 +44,7 @@ public class ThirdPersonCamera : MonoBehaviour
         if (Mouse.current == null)
             return;
 
-        // Game penceresine týklayýnca kamera kontrolünü aç.
+        // Game penceresine tï¿½klayï¿½nca kamera kontrolï¿½nï¿½ aï¿½.
         if (Cursor.lockState != CursorLockMode.Locked)
         {
             if (Mouse.current.leftButton.wasPressedThisFrame)
