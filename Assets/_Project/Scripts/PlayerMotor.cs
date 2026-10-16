@@ -28,7 +28,7 @@ public class PlayerMotor : MonoBehaviour
         if (moveAction == null || moveAction.action == null)
         {
             Debug.LogError(
-                "PlayerMotor: Move Action alanýna Gameplay/Move baðlanmalý.",
+                "PlayerMotor: Move Action alanï¿½na Gameplay/Move baï¿½lanmalï¿½.",
                 this
             );
 
@@ -50,7 +50,9 @@ public class PlayerMotor : MonoBehaviour
 
     private void Update()
     {
-        Vector2 input = moveAction.action.ReadValue<Vector2>();
+       Vector2 input = PlayerControlLocks.IsLocked
+    ? Vector2.zero
+    : moveAction.action.ReadValue<Vector2>();
 
         Vector3 direction;
 
