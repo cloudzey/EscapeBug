@@ -3,6 +3,8 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace EscapeBug.Dialogue
@@ -36,7 +38,7 @@ namespace EscapeBug.Dialogue
             {
                 onCompleted?.Invoke(new ChatResult
                 {
-                    Error = "Sunucu adresi veya model adý boþ."
+                    Error = "Sunucu adresi veya model adï¿½ boï¿½."
                 });
                 yield break;
             }
@@ -48,7 +50,7 @@ namespace EscapeBug.Dialogue
             {
                 onCompleted?.Invoke(new ChatResult
                 {
-                    Error = "Sunucu adresi geçerli bir HTTP/HTTPS adresi deðil."
+                    Error = "Sunucu adresi geï¿½erli bir HTTP/HTTPS adresi deï¿½il."
                 });
                 yield break;
             }
@@ -57,11 +59,12 @@ namespace EscapeBug.Dialogue
             {
                 onCompleted?.Invoke(new ChatResult
                 {
-                    Error = "Gönderilecek mesaj bulunamadý."
+                    Error = "Gï¿½nderilecek mesaj bulunamadï¿½."
                 });
                 yield break;
             }
 
+            // Mevcut mesaj serilestirmesini koru.
             var payload = new ChatRequest
             {
                 model = modelName.Trim(),
@@ -69,8 +72,70 @@ namespace EscapeBug.Dialogue
                 stream = false
             };
 
-            string json = JsonUtility.ToJson(payload);
+            JObject requestBody = JObject.Parse(JsonUtility.ToJson(payload));
+
+            requestBody["format"] = new JObject
+            {
+                ["type"] = "object",
+                ["properties"] = new JObject
+                {
+                    ["dialogue"] = new JObject
+                    {
+                        ["type"] = "string",
+                        ["minLength"] = 1,
+                        ["maxLength"] = 600
+                    },
+                    ["emotion"] = new JObject
+                    {
+                        ["type"] = "string",
+                        ["enum"] = new JArray(
+                            "angry",
+                            "suspicious",
+                            "calm"
+                        )
+                    },
+                    ["action"] = new JObject
+                    {
+                        ["type"] = "string",
+                        ["enum"] = new JArray(
+                        "none",
+                            "request_evidence",
+                            "open_exit"
+                        )
+                    },
+                    ["persuaded"] = new JObject
+                    {
+                        ["type"] = "boolean"
+                    }
+                },
+                ["required"] = new JArray(
+                    "dialogue",
+                    "emotion",
+                    "action",
+                    "persuaded"
+                ),
+                ["additionalProperties"] = false
+            };
+
+            JObject options = requestBody["options"] as JObject;
+
+            if (options == null)
+            {
+                options = new JObject();
+                requestBody["options"] = options;
+            }
+
+            options["temperature"] = 0;
+
+            string json = requestBody.ToString(Formatting.None);
+            Debug.Log("OLLAMA SON ISTEK: " + json, this);
             byte[] body = Encoding.UTF8.GetBytes(json);
+
+            Debug.Log(
+                $"Ollama istek ayarlari: model={modelName.Trim()}, " +
+                "format=NPC JSON semasi, temperature=0",
+                this
+            );
 
             var timer = Stopwatch.StartNew();
             var result = new ChatResult();
@@ -94,7 +159,7 @@ namespace EscapeBug.Dialogue
                 if (request.result != UnityWebRequest.Result.Success)
                 {
                     result.Error =
-                        $"Ýstek baþarýsýz. HTTP: {request.responseCode}. " +
+                        $"ï¿½stek baï¿½arï¿½sï¿½z. HTTP: {request.responseCode}. " +
                         $"Hata: {request.error}";
                 }
                 else
@@ -108,7 +173,7 @@ namespace EscapeBug.Dialogue
 
                         if (envelope == null)
                         {
-                            result.Error = "Yanýt zarfý okunamadý.";
+                            result.Error = "Yanï¿½t zarfï¿½ okunamadï¿½.";
                         }
                         else if (!string.IsNullOrWhiteSpace(envelope.error))
                         {
@@ -116,13 +181,13 @@ namespace EscapeBug.Dialogue
                         }
                         else if (!envelope.done)
                         {
-                            result.Error = "Tamamlanmamýþ yanýt alýndý.";
+                            result.Error = "Tamamlanmamï¿½ï¿½ yanï¿½t alï¿½ndï¿½.";
                         }
                         else if (envelope.message == null ||
                                  string.IsNullOrWhiteSpace(
                                      envelope.message.content))
                         {
-                            result.Error = "Yanýtta message.content boþ.";
+                            result.Error = "Yanï¿½tta message.content boï¿½.";
                         }
                         else
                         {
@@ -133,7 +198,7 @@ namespace EscapeBug.Dialogue
                     catch (Exception exception)
                     {
                         result.Error =
-                            "Yanýt zarfý ayrýþtýrýlamadý: " +
+                            "Yanï¿½t zarfï¿½ ayrï¿½ï¿½tï¿½rï¿½lamadï¿½: " +
                             exception.Message;
                     }
                 }
