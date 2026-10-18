@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Letter_02
   m_EditorClassIdentifier: Assembly-CSharp::LetterData
   id: letter_02
-  title: letter felice
-  body: letter felice
-  displayedDate: 
-  orderIndex: 0
-  symbol: 
+  title: "Felice' in s\xF6z\xFC"
+  body: "Kafka,\nBana iki sat\u0131r yazmak bu kadar zorken ba\u015Fkalar\u0131na mektup yeti\u015Ftirebilmen ilgin\xE7. A\xE7\u0131klaman varsa bu kez yar\u0131m b\u0131rakma. Bir kap\u0131n\u0131n arkas\u0131na saklanman\u0131n konu\u015Fmay\u0131 bitirdi\u011Fini sanma.\nFelice"
+  displayedDate: 21 Mart
+  orderIndex: 3
+  symbol: "G\xFCve"
   isEvidence: 0

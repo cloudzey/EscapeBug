@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Letter_01
   m_EditorClassIdentifier: Assembly-CSharp::LetterData
   id: letter_01
-  title: letter invite
-  body: letter invite
-  displayedDate: 
-  orderIndex: 0
-  symbol: 
+  title: Davet Mektubu
+  body: "Kafka,\nS\u0131k\u0131ld\u0131\u011F\u0131n\u0131 s\xF6yleyip duruyordun. \u015Eu ka\xE7\u0131\u015F odas\u0131n\u0131 bir dene. Klasik kilitlerden ibaret de\u011Filmi\u015F; insan\u0131n kendisiyle ilgili bir \u015Feyler de buldu\u011Fu s\xF6yleniyor. Randevunu ad\u0131na ay\u0131rtt\u0131m. En k\xF6t\xFC ihtimalle k\xF6t\xFC bir hik\xE2yen olur.\nBir arkada\u015F\u0131n"
+  displayedDate: 3 Mart
+  orderIndex: 1
+  symbol: Anahtar
   isEvidence: 0

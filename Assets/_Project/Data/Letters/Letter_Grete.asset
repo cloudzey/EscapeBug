@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: Letter_Grete
   m_EditorClassIdentifier: Assembly-CSharp::LetterData
   id: letter_grete
-  title: letter grete
+  title: "Grete'nin uyar\u0131s\u0131"
   body: 'Kafka,
 
     Gidecegin yerin adini duyunca yazmak istedim. Oradaki seyleri yalniz etiketlerine bakarak kullanma. Yardim eden biri her zaman seninle ayni seyi istemiyor olabilir. Bunu bir davet ya da bulusma teklifi sanma; yalnizca dikkatli olmani istiyorum. Cikinca haber ver.
 
     Grete'
-  displayedDate: 
-  orderIndex: 0
-  symbol: 
+  displayedDate: 12 Mart
+  orderIndex: 2
+  symbol: "G\xF6z"
   isEvidence: 1
