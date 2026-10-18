@@ -402,6 +402,7 @@ MonoBehaviour:
   resetOnSceneStart: 1
   entranceRulesRead: 0
   maintenanceEntered: 0
+  collectedLetterIds: []
   finalDialogueActive: 0
   evidenceCollected: 0
   evidenceShown: 0
@@ -452,6 +453,7 @@ MonoBehaviour:
   felicePrompt: {fileID: 4900000, guid: c059e8595d4daed4aaa9f8e9c7b755e4, type: 3}
   gameProgress: {fileID: 368700690}
   view: {fileID: 1459839004}
+  greteLetter: {fileID: 11400000, guid: 071994a63e471734ea4893bd4f32479b, type: 2}
 --- !u!1 &383412649
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,6 +9,8 @@ public class DialogueController : MonoBehaviour
     [SerializeField] private TextAsset felicePrompt;
     [SerializeField] private GameProgress gameProgress;
     [SerializeField] private DialogueView view;
+    [Header("Kanit mektubu")]
+    [SerializeField] private LetterData greteLetter;
 
     private bool requestInProgress;
 
@@ -186,15 +188,22 @@ public class DialogueController : MonoBehaviour
 
         if (gameProgress.evidenceShown)
         {
+            if (greteLetter == null ||
+                !greteLetter.isEvidence ||
+                string.IsNullOrWhiteSpace(greteLetter.id) ||
+                string.IsNullOrWhiteSpace(greteLetter.body))
+            {
+                ReportError(
+                    "Grete mektubu eksik veya kanit verisi uygun degil. " +
+                    "DialogueController uzerindeki Grete Letter alanini kontrol et."
+                );
+
+                return;
+            }
+
             systemPrompt +=
                 "\n\nFELICE'YE GOSTERILEN GRETE MEKTUBU:\n" +
-                "Kafka,\n" +
-                "Gidecegin yerin adini duyunca yazmak istedim. " +
-                "Oradaki seyleri yalniz etiketlerine bakarak kullanma. " +
-                "Yardim eden biri her zaman seninle ayni seyi " +
-                "istemiyor olabilir. Bunu bir davet ya da bulusma " +
-                "teklifi sanma; yalnizca dikkatli olmani istiyorum. " +
-                "Cikinca haber ver.\nGrete";
+                greteLetter.body;
         }
 
         ChatMessage[] messages =
