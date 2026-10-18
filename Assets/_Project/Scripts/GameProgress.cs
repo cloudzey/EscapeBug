@@ -11,6 +11,9 @@ public class GameProgress : MonoBehaviour
     public bool entranceRulesRead = false;
     public bool maintenanceEntered = false;
 
+    [Header("Archive Puzzle")]
+    public bool archivePuzzleSolved = false;
+
     [Header("Letters")]
     [SerializeField]
     private List<string> collectedLetterIds = new List<string>();
@@ -61,6 +64,7 @@ public class GameProgress : MonoBehaviour
     {
         entranceRulesRead = false;
         maintenanceEntered = false;
+        archivePuzzleSolved = false;
 
         collectedLetterIds.Clear();
 
@@ -72,6 +76,16 @@ public class GameProgress : MonoBehaviour
         LettersChanged?.Invoke();
 
         Debug.Log("Yeni oyun ilerlemesi sifirlandi.", this);
+    }
+
+    public void MarkArchivePuzzleSolved()
+    {
+        if (archivePuzzleSolved)
+            return;
+
+        archivePuzzleSolved = true;
+
+     Debug.Log("Arsiv sembol bulmacasi cozuldu.", this);
     }
 
     public bool CanOpenEntranceDoor()
