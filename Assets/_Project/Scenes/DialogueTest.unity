@@ -399,6 +399,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18eed67f0d51c4549a050205e312b222, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameProgress
+  resetOnSceneStart: 1
+  entranceRulesRead: 0
+  maintenanceEntered: 0
+  collectedLetterIds: []
   finalDialogueActive: 0
   evidenceCollected: 0
   evidenceShown: 0
@@ -449,6 +453,7 @@ MonoBehaviour:
   felicePrompt: {fileID: 4900000, guid: c059e8595d4daed4aaa9f8e9c7b755e4, type: 3}
   gameProgress: {fileID: 368700690}
   view: {fileID: 1459839004}
+  greteLetter: {fileID: 11400000, guid: 071994a63e471734ea4893bd4f32479b, type: 2}
 --- !u!1 &383412649
 GameObject:
   m_ObjectHideFlags: 0
@@ -2875,7 +2880,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EscapeBug.Dialogue.OllamaClient
   serverUrl: http://127.0.0.1:11434
-  modelName: llama3.2:3b
+  modelName: qwen2.5:3b
   timeoutSeconds: 60
 --- !u!4 &2009327967
 Transform:
@@ -2974,7 +2979,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1186347407}
   m_HandleRect: {fileID: 1186347406}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

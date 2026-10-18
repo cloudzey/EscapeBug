@@ -9,6 +9,8 @@ public class DialogueController : MonoBehaviour
     [SerializeField] private TextAsset felicePrompt;
     [SerializeField] private GameProgress gameProgress;
     [SerializeField] private DialogueView view;
+    [Header("Kanit mektubu")]
+    [SerializeField] private LetterData greteLetter;
 
     private bool requestInProgress;
 
@@ -74,7 +76,22 @@ public class DialogueController : MonoBehaviour
         Debug.Log("Felice: " + response.dialogue, this);
 
         if (response.action == "open_exit")
-            actionExecutor.ExecuteOpenExit();
+        {
+            if (!actionExecutor.isActiveAndEnabled)
+            {
+                ReportError("Cikis eylemi bileseni etkin degil.");
+                return;
+            }
+
+            if (!actionExecutor.ExecuteOpenExit())
+            {
+                ReportError(
+                    "Cikis kapisi acilamadi. " +
+                    "Kapi baglantisini ve oyun kosullarini kontrol et."
+                );
+                return;
+            }
+        }
 
         if (view != null)
         {
@@ -143,6 +160,27 @@ public class DialogueController : MonoBehaviour
             return;
         }
 
+        if (!gameProgress.finalDialogueActive)
+        {
+            ReportError("Final diyalogu henuz etkin degil.");
+            return;
+        }
+
+        if (gameProgress.exitOpened)
+        {
+            ReportError("Cikis zaten acildi.");
+            return;
+        }
+
+        if (gameProgress.evidenceShown && !gameProgress.evidenceCollected)
+        {
+            ReportError(
+                "Kanit durumu tutarsiz: " +
+                "Toplanmamis kanit gosterilmis olamaz."
+            );
+            return;
+        }
+
         string systemPrompt = felicePrompt.text
             + "\n\nGERCEK OYUN DURUMU:\n"
             + "evidenceShown="
@@ -150,15 +188,22 @@ public class DialogueController : MonoBehaviour
 
         if (gameProgress.evidenceShown)
         {
+            if (greteLetter == null ||
+                !greteLetter.isEvidence ||
+                string.IsNullOrWhiteSpace(greteLetter.id) ||
+                string.IsNullOrWhiteSpace(greteLetter.body))
+            {
+                ReportError(
+                    "Grete mektubu eksik veya kanit verisi uygun degil. " +
+                    "DialogueController uzerindeki Grete Letter alanini kontrol et."
+                );
+
+                return;
+            }
+
             systemPrompt +=
                 "\n\nFELICE'YE GOSTERILEN GRETE MEKTUBU:\n" +
-                "Kafka,\n" +
-                "Gidecegin yerin adini duyunca yazmak istedim. " +
-                "Oradaki seyleri yalniz etiketlerine bakarak kullanma. " +
-                "Yardim eden biri her zaman seninle ayni seyi " +
-                "istemiyor olabilir. Bunu bir davet ya da bulusma " +
-                "teklifi sanma; yalnizca dikkatli olmani istiyorum. " +
-                "Cikinca haber ver.\nGrete";
+                greteLetter.body;
         }
 
         ChatMessage[] messages =
@@ -166,6 +211,14 @@ public class DialogueController : MonoBehaviour
             new ChatMessage("system", systemPrompt),
             new ChatMessage("user", playerText.Trim())
         };
+
+        Debug.Log(
+            "Felice mesaj kontrolu: " +
+            JsonUtility.ToJson(messages[0]) +
+            "\n" +
+            JsonUtility.ToJson(messages[1]),
+            this
+        );
 
         Debug.Log(
             "Felice istegi gonderiliyor: evidenceShown=" +
@@ -221,6 +274,35 @@ public class DialogueController : MonoBehaviour
             "Beni bu yerin tehlikeleri hakkında uyarmıştı. " +
             "Sana gösterdiğim mektupta da bunu görebilirsin. " +
             "Seni kandırmak istemedim, lütfen açıklamamı dinle."
+        );
+    }
+
+    [ContextMenu("Test/Valid Exit Response")]
+    private void TestValidExitResponse()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning("Bu testi Play modunda çalıştır.", this);
+            return;
+        }
+
+        if (requestInProgress)
+        {
+            Debug.LogWarning("Önce mevcut model isteğinin bitmesini bekle.", this);
+            return;
+        }
+
+        Debug.Log(
+            "TEST: Hazır yanıt kullanılıyor; Ollama çağrılmıyor.",
+            this
+        );
+
+        HandleRawResponse(
+            "{\"dialogue\":\"Açıklaman mektuptaki uyarıyla tutarlı. " +
+            "Şimdi ne demek istediğini anlıyorum.\"," +
+            "\"emotion\":\"calm\"," +
+            "\"action\":\"open_exit\"," +
+            "\"persuaded\":true}"
         );
     }
 }

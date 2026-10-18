@@ -318,3 +318,21 @@ Giriş odasında kurallar kartı ve D0–D1 ilerleme mekanikleri mevcut test sah
 Arşiv odasında masa, raflar, üç mektup ve sembol kilidi için gerekli fiziksel yerleşim tamamlandı. Oyuncu hareketi, kamera ve erişilebilirlik testleri başarılı sonuçlandı.
 
 **Güncel durum:** Giriş, bakım ve arşiv alanlarının temel oda yapıları hazırdır. Arşiv bulmacası, iksir bölümü, final bölümü ve birleşik harita entegrasyonu sonraki çalışmalara bırakılmıştır.
+
+## 17 Ekim — İksir ve final oda kabukları
+
+- PotionRoom ve FinalRoom prefabları oluşturuldu.
+- Kapılar, mekanizma yerleri ve hedef noktaları yerleştirildi.
+- Final karakter maketlerinin konumları düzenlendi.
+- İnsanla duvar ve kapı çarpışmaları kontrol edildi.
+- Final çıkış platformuna geçiş doğrulandı.
+- İnsan, iksir bölmesine kapalı kapıdan veya küçük açıklıktan giremedi.
+- Küçük böceğin dar açıklıktan gidiş ve dönüşü doğrulandı.
+
+Henüz bağlı olmayanlar:
+- İksir ve dönüşüm sistemi.
+- LeverA'nın mandallı davranışı ve LeverB etkileşimi.
+- İkinci kolun dışarıdan kullanılmasını engelleyen etkileşim kontrolü.
+- Bölme kapısı ve D4'ün mekanizma bağlantıları.
+- Final diyalogunun oda içindeki tetiklenmesi ve EndTrigger bitiş akışı.
+- Açılan kapılara göre navigasyonun güncellenmesi.
