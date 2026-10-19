@@ -15,6 +15,8 @@ public class SymbolLockUI : MonoBehaviour
 
     [Header("Geri bildirim")]
     [SerializeField] private TMP_Text feedbackText;
+    [Header("Ses")]
+[SerializeField] private AudioSource wrongSequenceAudio;
 
     private bool isOpen;
 
@@ -67,20 +69,48 @@ public class SymbolLockUI : MonoBehaviour
         feedbackText.text = controller.IsSolved
             ? "Bu kilit zaten çözüldü."
             : "Mektuplardaki tarih sırasına göre sembolleri seç.";
+            feedbackText.color = Color.white;
     }
 
-    public void Submit()
+    
+public void Submit()
+{
+    if (!isOpen || !IsReady)
+        return;
+
+    bool incomplete =
+        firstSlot.value == 0 ||
+        secondSlot.value == 0 ||
+        thirdSlot.value == 0;
+
+    controller.SetSymbol(0, firstSlot.value - 1);
+    controller.SetSymbol(1, secondSlot.value - 1);
+    controller.SetSymbol(2, thirdSlot.value - 1);
+
+    controller.TryUnlock(out string message);
+
+    if (controller.IsSolved)
     {
-        if (!isOpen || !IsReady)
-            return;
-
-        controller.SetSymbol(0, firstSlot.value - 1);
-        controller.SetSymbol(1, secondSlot.value - 1);
-        controller.SetSymbol(2, thirdSlot.value - 1);
-
-        controller.TryUnlock(out string message);
-        feedbackText.text = message;
+        feedbackText.text = "Açıldı";
+        feedbackText.color = new Color32(112, 220, 137, 255);
     }
+    else if (incomplete)
+    {
+        feedbackText.text = "Üç sembolü de seç.";
+        feedbackText.color = new Color32(255, 193, 98, 255);
+    }
+    else
+{
+    feedbackText.text = "Sıra uyuşmadı. Tekrar dene.";
+    feedbackText.color = new Color32(245, 125, 125, 255);
+
+    if (wrongSequenceAudio != null)
+    {
+        wrongSequenceAudio.Play();
+    }
+}
+}
+
 
     public void Close()
     {
