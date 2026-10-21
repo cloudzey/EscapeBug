@@ -84,95 +84,112 @@ private void Update()
 }
 
 
-    private void FindTarget()
+    
+private void FindTarget()
+{
+    currentTarget = null;
+    currentTargetBehaviour = null;
+
+    Camera playerCamera = cameraTransform.GetComponent<Camera>();
+
+    if (playerCamera == null)
+        playerCamera = Camera.main;
+
+    if (playerCamera == null)
+        return;
+
+    Vector3 origin = interactionOrigin.position;
+
+    Collider[] candidates = Physics.OverlapSphere(
+        origin,
+        interactionRange,
+        interactionMask,
+        QueryTriggerInteraction.Ignore
+    );
+
+    float bestScore = float.PositiveInfinity;
+
+    foreach (Collider candidate in candidates)
     {
-        currentTarget = null;
-        currentTargetBehaviour = null;
+        IInteractable interactable =
+            candidate.GetComponentInParent<IInteractable>();
 
-        Vector3 origin = interactionOrigin.position;
+        MonoBehaviour behaviour =
+            interactable as MonoBehaviour;
 
-        Collider[] candidates = Physics.OverlapSphere(
+        if (behaviour == null || !behaviour.isActiveAndEnabled)
+            continue;
+
+        Vector3 targetPoint = candidate.bounds.center;
+
+        // Nesnenin kameradaki ekran konumunu bul.
+        Vector3 viewport =
+            playerCamera.WorldToViewportPoint(targetPoint);
+
+        if (viewport.z <= 0f)
+            continue;
+
+        // Ekranin yatay ortasina yakin nesnelere odaklan.
+        float horizontalDistance =
+            Mathf.Abs(viewport.x - 0.5f);
+
+        float verticalDistance =
+            Mathf.Abs(viewport.y - 0.5f);
+
+        // Hedef cok kenardaysa secme.
+        if (horizontalDistance > 0.12f ||
+            verticalDistance > 0.42f)
+            continue;
+
+        Vector3 offset = targetPoint - origin;
+        float distance = offset.magnitude;
+
+        if (distance < 0.001f || distance > interactionRange)
+            continue;
+
+        Vector3 direction = offset / distance;
+
+        // Arada duvar veya baska nesne var mi?
+        bool hasHit = Physics.Raycast(
             origin,
-            interactionRange,
-            interactionMask,
+            direction,
+            out RaycastHit hit,
+            distance + 0.05f,
+            visibilityMask,
             QueryTriggerInteraction.Ignore
         );
 
-        float minimumDot =
-            Mathf.Cos(viewHalfAngle * Mathf.Deg2Rad);
+        if (!hasHit)
+            continue;
 
-        float bestScore = float.NegativeInfinity;
+        IInteractable firstHit =
+            hit.collider.GetComponentInParent<IInteractable>();
 
-        foreach (Collider candidate in candidates)
+        if (!object.ReferenceEquals(firstHit, interactable))
+            continue;
+
+        // Yatay ekran konumuna oncelik ver.
+        // Boylece yan yana duran siseler karismaz.
+        float score =
+            horizontalDistance * 3f +
+            verticalDistance * 0.15f;
+
+        if (score < bestScore)
         {
-            IInteractable interactable =
-                candidate.GetComponentInParent<IInteractable>();
-
-            MonoBehaviour behaviour =
-                interactable as MonoBehaviour;
-
-            if (behaviour == null || !behaviour.isActiveAndEnabled)
-            {
-                continue;
-            }
-
-            Vector3 targetPoint = candidate.bounds.center;
-            Vector3 offset = targetPoint - origin;
-            float distance = offset.magnitude;
-
-            if (distance < 0.001f || distance > interactionRange)
-            {
-                continue;
-            }
-
-            Vector3 direction = offset / distance;
-
-            float alignment = Vector3.Dot(
-                cameraTransform.forward,
-                direction
-            );
-
-            if (alignment < minimumDot)
-            {
-                continue;
-            }
-
-            bool hasHit = Physics.Raycast(
-                origin,
-                direction,
-                out RaycastHit hit,
-                distance + 0.05f,
-                visibilityMask,
-                QueryTriggerInteraction.Ignore
-            );
-
-            if (!hasHit)
-            {
-                continue;
-            }
-
-            IInteractable firstHit =
-                hit.collider.GetComponentInParent<IInteractable>();
-
-            if (!object.ReferenceEquals(firstHit, interactable))
-            {
-                continue;
-            }
-
-            float score =
-                alignment - (distance / interactionRange) * 0.15f;
-
-            if (score > bestScore)
-            {
-                bestScore = score;
-                currentTarget = interactable;
-                currentTargetBehaviour = behaviour;
-            }
+            bestScore = score;
+            currentTarget = interactable;
+            currentTargetBehaviour = behaviour;
         }
     }
+}
+
 
     private void OnGUI()
     {
+        GUI.Label(
+    new Rect(Screen.width / 2f - 8, Screen.height / 2f - 12, 24, 24),
+    "+"
+);
         if (currentTargetBehaviour == null ||
             !currentTargetBehaviour.isActiveAndEnabled)
         {
