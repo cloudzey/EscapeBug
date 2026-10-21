@@ -25,6 +25,7 @@ public class GameProgress : MonoBehaviour
     public bool exitOpened = false;
 
     public event Action LettersChanged;
+    public event Action ProgressReset;
 
     private void Start()
     {
@@ -74,6 +75,7 @@ public class GameProgress : MonoBehaviour
         exitOpened = false;
 
         LettersChanged?.Invoke();
+        ProgressReset?.Invoke();
 
         Debug.Log("Yeni oyun ilerlemesi sifirlandi.", this);
     }
