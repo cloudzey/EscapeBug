@@ -37,6 +37,9 @@ public class PotionPuzzleController : MonoBehaviour
     [Header("Geri bildirim")]
     [SerializeField] private TMP_Text statusText;
 
+    [Header("Donusum yonetimi")]
+    [SerializeField] private EndingController endingController;
+
     [Header("Donusum istegi")]
     [SerializeField]
     private UnityEvent onTransformationRequested = new UnityEvent();
@@ -295,6 +298,18 @@ public class PotionPuzzleController : MonoBehaviour
         if (!potion.isCorrect)
         {
             SetStatus("Bu iksir uygun değil. Başka bir şişe deneyebilirsin.");
+            return false;
+        }
+
+        if (endingController == null)
+        {
+            SetStatus("EndingController bağlantısı eksik.");
+            return false;
+        }
+
+        if (!endingController.CanStartTransformation(out string endingError))
+        {
+            SetStatus(endingError);
             return false;
         }
 

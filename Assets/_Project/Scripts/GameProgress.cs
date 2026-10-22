@@ -27,6 +27,74 @@ public class GameProgress : MonoBehaviour
     public event Action LettersChanged;
     public event Action ProgressReset;
 
+[Serializable]
+public class TransferData
+{
+    public bool entranceRulesRead;
+    public bool maintenanceEntered;
+    public bool archivePuzzleSolved;
+    public string[] letterIds;
+
+    public bool evidenceCollected;
+    public bool evidenceShown;
+    public bool exitOpened;
+}
+
+public TransferData CaptureTransferData()
+{
+    return new TransferData
+    {
+        entranceRulesRead = entranceRulesRead,
+        maintenanceEntered = maintenanceEntered,
+        archivePuzzleSolved = archivePuzzleSolved,
+        letterIds = collectedLetterIds.ToArray(),
+        evidenceCollected = evidenceCollected,
+        evidenceShown = evidenceShown,
+        exitOpened = exitOpened
+    };
+}
+
+public void RestoreTransferData(TransferData data)
+{
+    if (data == null)
+        return;
+
+    entranceRulesRead = data.entranceRulesRead;
+    maintenanceEntered = data.maintenanceEntered;
+    archivePuzzleSolved = data.archivePuzzleSolved;
+
+    collectedLetterIds.Clear();
+
+    if (data.letterIds != null)
+    {
+        foreach (string id in data.letterIds)
+        {
+            if (!string.IsNullOrWhiteSpace(id) &&
+                !collectedLetterIds.Contains(id))
+            {
+                collectedLetterIds.Add(id);
+            }
+        }
+    }
+
+    evidenceCollected = data.evidenceCollected;
+    evidenceShown = data.evidenceShown;
+    exitOpened = data.exitOpened;
+
+    finalDialogueActive = false;
+
+    LettersChanged?.Invoke();
+
+    Debug.Log(
+        "Ilerleme aktarildi. Mektup sayisi: " +
+        collectedLetterIds.Count +
+        ", arsiv: " + archivePuzzleSolved +
+        ", kanit toplandi: " + evidenceCollected +
+        ", kanit gosterildi: " + evidenceShown,
+        this
+    );
+}
+
     private void Start()
     {
         if (resetOnSceneStart)

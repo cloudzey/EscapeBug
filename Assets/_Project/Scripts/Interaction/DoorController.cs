@@ -22,7 +22,7 @@ public class DoorController : MonoBehaviour
         if (doorVisual == null)
         {
             Debug.LogError(
-                "DoorController: Door Visual alanýna kapý panelini baðla.",
+                "DoorController: Door Visual alanï¿½na kapï¿½ panelini baï¿½la.",
                 this
             );
 
@@ -31,6 +31,17 @@ public class DoorController : MonoBehaviour
         }
 
         closedLocalPosition = doorVisual.localPosition;
+    }
+
+    public void ResetToClosed()
+    {
+        StopAllCoroutines();
+
+        IsOpening = false;
+        IsOpen = false;
+
+        if (doorVisual != null)
+            doorVisual.localPosition = closedLocalPosition;
     }
 
     public void Open()
@@ -73,6 +84,6 @@ public class DoorController : MonoBehaviour
         IsOpening = false;
         IsOpen = true;
 
-        Debug.Log("Kapý açýldý.", this);
+        Debug.Log("Kapï¿½ aï¿½ï¿½ldï¿½.", this);
     }
 }
