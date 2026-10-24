@@ -354,13 +354,16 @@ public class DialogueController : MonoBehaviour
             dialogueGroup.blocksRaycasts = DialogueActive;
         }
 
-        if (evidenceButton != null)
-        {
-            evidenceButton.interactable =
-                canTalk &&
-                !requestInProgress &&
-                !gameProgress.evidenceShown;
-        }
+       
+if (evidenceButton != null)
+{
+    evidenceButton.interactable =
+        canTalk &&
+        !requestInProgress &&
+        OwnsGreteLetter &&
+        !gameProgress.evidenceShown;
+}
+
 
         if (evidenceStatusText != null)
         {
