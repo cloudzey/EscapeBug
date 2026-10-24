@@ -402,6 +402,7 @@ MonoBehaviour:
   resetOnSceneStart: 1
   entranceRulesRead: 0
   maintenanceEntered: 0
+  archivePuzzleSolved: 0
   collectedLetterIds: []
   finalDialogueActive: 0
   evidenceCollected: 0
@@ -454,6 +455,11 @@ MonoBehaviour:
   gameProgress: {fileID: 368700690}
   view: {fileID: 1459839004}
   greteLetter: {fileID: 11400000, guid: 071994a63e471734ea4893bd4f32479b, type: 2}
+  dialogueGroup: {fileID: 0}
+  evidenceButton: {fileID: 0}
+  evidenceStatusText: {fileID: 0}
+  finalRoomEntry: {fileID: 0}
+  logContext: 1
 --- !u!1 &383412649
 GameObject:
   m_ObjectHideFlags: 0
@@ -3030,8 +3036,8 @@ SceneRoots:
   - {fileID: 1290347269}
   - {fileID: 1556883903}
   - {fileID: 574013148}
-  - {fileID: 383412652}
-  - {fileID: 1232650364}
   - {fileID: 2009327967}
   - {fileID: 368700691}
+  - {fileID: 383412652}
+  - {fileID: 1232650364}
   - {fileID: 627635325}

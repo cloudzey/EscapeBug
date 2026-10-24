@@ -14,6 +14,8 @@ public class FinalRoomEntry : MonoBehaviour
     [SerializeField, Min(0.05f)]
     private float fadeDuration = 0.5f;
 
+    public bool IsReady { get; private set; }
+
     private void Awake()
     {
         PlayerControlLocks.Acquire(this);
@@ -106,6 +108,8 @@ public class FinalRoomEntry : MonoBehaviour
 
         yield return null;
 
+        IsReady = true;
+
         if (transferred)
         {
             gameProgress.finalDialogueActive = true;
@@ -136,6 +140,7 @@ public class FinalRoomEntry : MonoBehaviour
 
     private void OnDisable()
     {
+        IsReady = false;
         StopAllCoroutines();
         PlayerControlLocks.Release(this);
 

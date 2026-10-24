@@ -2,38 +2,47 @@ using UnityEngine;
 
 public class NpcActionExecutor : MonoBehaviour
 {
-    [SerializeField]
-    private GameProgress gameProgress;
-
-    [SerializeField]
-    private DoorController exitDoor;
+    [SerializeField] private GameProgress gameProgress;
+    [SerializeField] private DoorController exitDoor;
 
     public bool ExecuteOpenExit()
-{
-    if (gameProgress == null || exitDoor == null)
     {
-        Debug.LogError("GameProgress veya ExitDoor eksik!");
-        return false;
+        if (!isActiveAndEnabled ||
+            gameProgress == null ||
+            exitDoor == null ||
+            !exitDoor.isActiveAndEnabled)
+        {
+            Debug.LogWarning(
+                "Çıkış bağlantıları eksik veya devre dışı.",
+                this
+            );
+            return false;
+        }
+
+        if (!gameProgress.CanOpenExit())
+        {
+            Debug.LogWarning(
+                "Kapı açma koşulları sağlanmadı.",
+                this
+            );
+            return false;
+        }
+
+        if (exitDoor.IsOpen || exitDoor.IsOpening)
+        {
+            Debug.LogWarning(
+                "Kapı zaten açık veya açılıyor.",
+                this
+            );
+            return false;
+        }
+
+        exitDoor.Open();
+
+        if (!exitDoor.IsOpening && !exitDoor.IsOpen)
+            return false;
+
+        gameProgress.exitOpened = true;
+        return true;
     }
-
-    if (!gameProgress.CanOpenExit())
-    {
-        Debug.LogWarning("Kapi acma kosullari saglanmadi.");
-        return false;
-    }
-
-    exitDoor.Open();
-
-    if (!exitDoor.IsOpening && !exitDoor.IsOpen)
-        return false;
-
-    gameProgress.exitOpened = true;
-    return true;
-}
-[ContextMenu("Test Exit Action")]
-private void TestExitAction()
-{
-    bool result = ExecuteOpenExit();
-    Debug.Log("Kapi acma sonucu: " + result);
-}
 }

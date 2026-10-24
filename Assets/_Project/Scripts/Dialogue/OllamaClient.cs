@@ -31,7 +31,9 @@ namespace EscapeBug.Dialogue
 
         public IEnumerator SendChat(
             ChatMessage[] messages,
-            Action<ChatResult> onCompleted)
+            Action<ChatResult> onCompleted,
+            bool evidenceShown = false,
+            bool canOpenExit = false)
         {
             if (string.IsNullOrWhiteSpace(serverUrl) ||
                 string.IsNullOrWhiteSpace(modelName))
@@ -64,7 +66,6 @@ namespace EscapeBug.Dialogue
                 yield break;
             }
 
-            // Mevcut mesaj serilestirmesini koru.
             var payload = new ChatRequest
             {
                 model = modelName.Trim(),
@@ -72,50 +73,44 @@ namespace EscapeBug.Dialogue
                 stream = false
             };
 
-            JObject requestBody = JObject.Parse(JsonUtility.ToJson(payload));
+            string[] allowedActions;
 
-            requestBody["format"] = new JObject
+            if (!evidenceShown)
             {
-                ["type"] = "object",
-                ["properties"] = new JObject
+                allowedActions = new[]
                 {
-                    ["dialogue"] = new JObject
-                    {
-                        ["type"] = "string",
-                        ["minLength"] = 1,
-                        ["maxLength"] = 600
-                    },
-                    ["emotion"] = new JObject
-                    {
-                        ["type"] = "string",
-                        ["enum"] = new JArray(
-                            "angry",
-                            "suspicious",
-                            "calm"
-                        )
-                    },
-                    ["action"] = new JObject
-                    {
-                        ["type"] = "string",
-                        ["enum"] = new JArray(
-                        "none",
-                            "request_evidence",
-                            "open_exit"
-                        )
-                    },
-                    ["persuaded"] = new JObject
-                    {
-                        ["type"] = "boolean"
-                    }
-                },
-                ["required"] = new JArray(
-                    "dialogue",
-                    "emotion",
-                    "action",
-                    "persuaded"
-                ),
-                ["additionalProperties"] = false
-            };
+                    "none",
+                    "request_evidence"
+                };
+            }
+            else if (canOpenExit)
+            {
+                allowedActions = new[]
+                {
+                    "none",
+                    "open_exit"
+                };
+            }
+            else
+            {
+                allowedActions = new[]
+                {
+                    "none"
+                };
+            }
+
+            payload.format.properties.action.@enum = allowedActions;
+
+            JObject requestBody =
+                JObject.Parse(JsonUtility.ToJson(payload));
+
+            Debug.Log(
+                "Ollama izinli eylemler: " +
+                string.Join(", ", allowedActions) +
+                " | evidenceShown=" + evidenceShown +
+                " | canOpenExit=" + canOpenExit,
+                this
+            );
 
             JObject options = requestBody["options"] as JObject;
 
