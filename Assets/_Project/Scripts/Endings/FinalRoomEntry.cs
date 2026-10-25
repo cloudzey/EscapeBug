@@ -10,6 +10,7 @@ public class FinalRoomEntry : MonoBehaviour
     [SerializeField] private Camera sceneCamera;
     [SerializeField] private Transform finalCameraPoint;
     [SerializeField] private Image fadeImage;
+    [SerializeField] private FinalStoryPanel storyPanel;
 
     [SerializeField, Min(0.05f)]
     private float fadeDuration = 0.5f;
@@ -42,6 +43,8 @@ public class FinalRoomEntry : MonoBehaviour
             sceneCamera == null ||
             finalCameraPoint == null ||
             fadeImage == null ||
+            storyPanel == null ||
+            !storyPanel.isActiveAndEnabled ||
             !sceneCamera.isActiveAndEnabled ||
             !fadeImage.isActiveAndEnabled)
         {
@@ -112,11 +115,25 @@ public class FinalRoomEntry : MonoBehaviour
 
         if (transferred)
         {
+            gameProgress.finalDialogueActive = false;
+
+            yield return storyPanel.PlayConfrontation();
+
+            if (!storyPanel.Completed)
+            {
+                Debug.LogError(
+                    "Final yuzlesmesi tamamlanamadi. " +
+                    "Panel baglantilarini ve metinleri kontrol et.",
+                    this
+                );
+                yield break;
+            }
+
             gameProgress.finalDialogueActive = true;
 
             Debug.Log(
-                "Final girisi hazir. Ilerleme aktarildi, " +
-                "final kamerasi etkin, hareket kilitli.",
+                "Final yuzlesmesi tamamlandi. " +
+                "Felice ile serbest konusma basladi.",
                 this
             );
         }
@@ -142,6 +159,8 @@ public class FinalRoomEntry : MonoBehaviour
     {
         IsReady = false;
         StopAllCoroutines();
+        if (storyPanel != null)
+            storyPanel.CancelPlayback();
         PlayerControlLocks.Release(this);
 
         if (gameProgress != null)

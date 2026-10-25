@@ -5,6 +5,8 @@ public class NpcActionExecutor : MonoBehaviour
     [SerializeField] private GameProgress gameProgress;
     [SerializeField] private DoorController exitDoor;
 
+    public event System.Action ExitOpened;
+
     public bool ExecuteOpenExit()
     {
         if (!isActiveAndEnabled ||
@@ -43,6 +45,8 @@ public class NpcActionExecutor : MonoBehaviour
             return false;
 
         gameProgress.exitOpened = true;
+        ExitOpened?.Invoke();
+
         return true;
     }
 }
