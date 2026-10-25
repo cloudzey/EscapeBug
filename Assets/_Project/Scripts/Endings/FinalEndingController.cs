@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class FinalEndingController : MonoBehaviour
 {
@@ -30,6 +31,13 @@ public class FinalEndingController : MonoBehaviour
     [SerializeField] private GameObject humanVisualRoot;
     [SerializeField] private PlayerMotor finalKafkaMotor;
     [SerializeField] private GameObject endPanel;
+    [Header("Final Menu")]
+    [SerializeField] private string restartSceneName = "EntranceTest";
+    
+    [Header("Grete Reveal")]
+    [SerializeField] private Transform greteMark;
+    [SerializeField] private Transform greteRevealPoint;
+
 
     [SerializeField, Min(0.05f)]
     private float fadeDuration = 0.5f;
@@ -80,10 +88,14 @@ public class FinalEndingController : MonoBehaviour
             revealCameraAnchor == null ||
             fadeImage == null ||
             !fadeImage.isActiveAndEnabled ||
+            
             humanVisualRoot == null ||
             finalKafkaMotor == null ||
             !finalKafkaMotor.enabled ||
-            endPanel == null)
+            endPanel == null ||
+            greteMark == null ||
+            greteRevealPoint == null)
+
         {
             Fail("Final baglantilari eksik veya devre disi.");
             return;
@@ -166,11 +178,18 @@ public class FinalEndingController : MonoBehaviour
     {
         stage = FinalStage.Revealing;
 
-        fadeImage.raycastTarget = true;
+        
+    fadeImage.raycastTarget = true;
 
-        yield return FadeTo(1f);
 
-        humanVisualRoot.SetActive(false);
+    yield return FadeTo(1f);
+
+
+    greteMark.position = greteRevealPoint.position;
+
+
+    humanVisualRoot.SetActive(false);
+
 
         ThirdPersonCamera follow =
             sceneCamera.GetComponent<ThirdPersonCamera>();
@@ -277,6 +296,51 @@ public class FinalEndingController : MonoBehaviour
         Debug.Log("Final: Kafka bocek olarak cikti. Oyun tamamlandi.", this);
         return true;
     }
+    
+public void RestartGame()
+{
+    if (stage != FinalStage.End)
+        return;
+
+    if (string.IsNullOrWhiteSpace(restartSceneName) ||
+        !Application.CanStreamedLevelBeLoaded(restartSceneName))
+    {
+        Debug.LogError(
+            "Yeniden baslatma basarisiz: Baslangic sahnesi " +
+            "Scene List icinde bulunamadi: " + restartSceneName,
+            this
+        );
+        return;
+    }
+
+    // Final sahnesine aktarilmis gecici veriyi temizle.
+    FinalSceneTransfer.Clear();
+
+    // Oyun daha once duraklatildiysa normale don.
+    Time.timeScale = 1f;
+
+    Cursor.lockState = CursorLockMode.None;
+    Cursor.visible = true;
+
+    // Oyunun ilk sahnesini yeniden yukle.
+    SceneManager.LoadScene(restartSceneName);
+}
+
+public void QuitGame()
+{
+    if (stage != FinalStage.End)
+        return;
+
+    Debug.Log("Oyundan cikiliyor.", this);
+
+#if UNITY_EDITOR
+   
+    UnityEditor.EditorApplication.isPlaying = false;
+#else
+   
+    Application.Quit();
+#endif
+}
 
     private void Fail(string message)
     {
