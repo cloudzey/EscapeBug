@@ -1,3 +1,5 @@
+
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -5,6 +7,13 @@ using UnityEngine.UI;
 
 public class LetterReader : MonoBehaviour
 {
+    [Serializable]
+    private class LetterSymbolEntry
+    {
+        public LetterData letter;
+        public Sprite symbol;
+    }
+
     [Header("Panel")]
     [SerializeField] private GameObject panelRoot;
     [SerializeField] private TMP_Text titleText;
@@ -12,6 +21,10 @@ public class LetterReader : MonoBehaviour
     [SerializeField] private TMP_Text bodyText;
     [SerializeField] private Button closeButton;
     [SerializeField] private ScrollRect bodyScroll;
+
+    [Header("Mektup Sembolleri")]
+    [SerializeField] private Image symbolImage;
+    [SerializeField] private LetterSymbolEntry[] letterSymbols;
 
     public bool IsOpen { get; private set; }
 
@@ -33,6 +46,12 @@ public class LetterReader : MonoBehaviour
 
         if (bodyText != null)
             bodyText.richText = false;
+
+        if (symbolImage != null)
+        {
+            symbolImage.raycastTarget = false;
+            symbolImage.gameObject.SetActive(false);
+        }
 
         if (panelRoot != null)
             panelRoot.SetActive(false);
@@ -74,6 +93,9 @@ public class LetterReader : MonoBehaviour
             !string.IsNullOrWhiteSpace(letter.displayedDate)
         );
 
+        // Acilan mektubun sembolunu goster.
+        RefreshSymbol(letter);
+
         PlayerControlLocks.Acquire(this);
         IsOpen = true;
         panelRoot.SetActive(true);
@@ -86,11 +108,38 @@ public class LetterReader : MonoBehaviour
         return true;
     }
 
+    private void RefreshSymbol(LetterData letter)
+    {
+        if (symbolImage == null)
+            return;
+
+        Sprite selectedSymbol = null;
+
+        if (letterSymbols != null)
+        {
+            foreach (LetterSymbolEntry entry in letterSymbols)
+            {
+                if (entry != null && entry.letter == letter)
+                {
+                    selectedSymbol = entry.symbol;
+                    break;
+                }
+            }
+        }
+
+        symbolImage.sprite = selectedSymbol;
+        symbolImage.preserveAspect = true;
+        symbolImage.gameObject.SetActive(selectedSymbol != null);
+    }
+
     public void Close()
     {
         IsOpen = false;
 
         PlayerControlLocks.Release(this);
+
+        if (symbolImage != null)
+            symbolImage.gameObject.SetActive(false);
 
         if (panelRoot != null)
             panelRoot.SetActive(false);

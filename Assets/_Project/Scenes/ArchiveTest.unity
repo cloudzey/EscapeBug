@@ -185,7 +185,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
+    rgba: 4292340730
   m_fontColor: {r: 0.9803922, g: 0.9215687, b: 0.8431373, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -1032,7 +1032,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
+    rgba: 4292340730
   m_fontColor: {r: 0.9803922, g: 0.9215687, b: 0.8431373, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -1471,6 +1471,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
+--- !u!114 &1505699293 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5940169020921827859, guid: ef0ab723c536bcc40a0fa3f75882fc97, type: 3}
+  m_PrefabInstance: {fileID: 5551111366005022237}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &1659380043
 GameObject:
   m_ObjectHideFlags: 0
@@ -1489,7 +1500,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1659380044
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1630,6 +1641,14 @@ MonoBehaviour:
   bodyText: {fileID: 806410041}
   closeButton: {fileID: 248469653}
   bodyScroll: {fileID: 1500202582}
+  symbolImage: {fileID: 1505699293}
+  letterSymbols:
+  - letter: {fileID: 11400000, guid: 3edcf3043ea66e44499b2187f956a29b, type: 2}
+    symbol: {fileID: 6201162234472322507, guid: 6f9c7b5e0b535ec4bb7c440543c516a7, type: 3}
+  - letter: {fileID: 11400000, guid: 071994a63e471734ea4893bd4f32479b, type: 2}
+    symbol: {fileID: 5257516385534020859, guid: e5b2c34d3f0823648972af45c44f136b, type: 3}
+  - letter: {fileID: 11400000, guid: 733d4a0444b26214aa50a18b4b20d140, type: 2}
+    symbol: {fileID: -6469213735488442070, guid: 3804b7e65811dc4488aad11fae201933, type: 3}
 --- !u!114 &1830186890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2005,7 +2024,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
+    rgba: 4292340730
   m_fontColor: {r: 0.9803922, g: 0.9215687, b: 0.8431373, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -2153,7 +2172,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4292340730
   m_fontColor: {r: 0.9803922, g: 0.9215687, b: 0.8431373, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
