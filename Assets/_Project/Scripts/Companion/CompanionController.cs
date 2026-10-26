@@ -42,6 +42,8 @@ public class CompanionController : MonoBehaviour
         state == CompanionState.Interact ||
         state == CompanionState.Return;
 
+    public bool IsExecutingTask => IsBusy;
+
     private void Awake()
     {
         if (motor == null)
@@ -61,7 +63,7 @@ public class CompanionController : MonoBehaviour
             !HasAction(followAction))
         {
             Debug.LogError(
-                "CompanionController: Motor, Sensors, Player ve üç Input Action baðlanmalý.",
+                "CompanionController: Motor, Sensors, Player ve ï¿½ï¿½ Input Action baï¿½lanmalï¿½.",
                 this
             );
 
@@ -104,14 +106,14 @@ public class CompanionController : MonoBehaviour
             !sensors.isActiveAndEnabled)
         {
             if (state != CompanionState.Failed)
-                FailTask("Oyuncu, motor veya sensör kullanýlamýyor.");
+                FailTask("Oyuncu, motor veya sensï¿½r kullanï¿½lamï¿½yor.");
 
             return;
         }
 
         if (IsBusy && Time.time > deadline)
         {
-            FailTask("Görev aþamasý için süre sýnýrý aþýldý.");
+            FailTask("Gï¿½rev aï¿½amasï¿½ iï¿½in sï¿½re sï¿½nï¿½rï¿½ aï¿½ï¿½ldï¿½.");
             return;
         }
 
@@ -149,19 +151,19 @@ public class CompanionController : MonoBehaviour
 
         if (IsBusy)
         {
-            Debug.Log("Böcek zaten görevde; yeni komut alýnmadý.", this);
+            Debug.Log("Bï¿½cek zaten gï¿½revde; yeni komut alï¿½nmadï¿½.", this);
             return;
         }
 
         if (mechanism == null || !mechanism.IsReady)
         {
-            FailTask("Geçerli mekanizma atanmamýþ.");
+            FailTask("Geï¿½erli mekanizma atanmamï¿½ï¿½.");
             return;
         }
 
         if (mechanism.IsUsed)
         {
-            lastMessage = "Bu mekanizma zaten kullanýldý.";
+            lastMessage = "Bu mekanizma zaten kullanï¿½ldï¿½.";
             Debug.Log(lastMessage, this);
             return;
         }
@@ -227,11 +229,11 @@ public class CompanionController : MonoBehaviour
 
         if (!activeMechanism.TryActivate())
         {
-            FailTask("Mekanizma çalýþtýrýlamadý.");
+            FailTask("Mekanizma ï¿½alï¿½ï¿½tï¿½rï¿½lamadï¿½.");
             return;
         }
 
-        lastMessage = "Mekanizma çalýþtý; oyuncuya dönülüyor.";
+        lastMessage = "Mekanizma ï¿½alï¿½ï¿½tï¿½; oyuncuya dï¿½nï¿½lï¿½yor.";
         motor.Stop();
         ResetPlayerTracking();
 
@@ -258,7 +260,7 @@ public class CompanionController : MonoBehaviour
 
             if (returning)
             {
-                lastMessage = "Görev tamamlandý; oyuncuya dönüldü.";
+                lastMessage = "Gï¿½rev tamamlandï¿½; oyuncuya dï¿½nï¿½ldï¿½.";
                 ChangeState(CompanionState.Follow);
             }
 
@@ -309,7 +311,7 @@ public class CompanionController : MonoBehaviour
 
         if (IsBusy)
         {
-            Debug.Log("Görev sürerken bekleme komutu alýnmadý.", this);
+            Debug.Log("Gï¿½rev sï¿½rerken bekleme komutu alï¿½nmadï¿½.", this);
             return;
         }
 
@@ -327,7 +329,7 @@ public class CompanionController : MonoBehaviour
 
         if (IsBusy)
         {
-            Debug.Log("Görev sürerken takip komutu alýnmadý.", this);
+            Debug.Log("Gï¿½rev sï¿½rerken takip komutu alï¿½nmadï¿½.", this);
             return;
         }
 
@@ -342,7 +344,7 @@ public class CompanionController : MonoBehaviour
         if (activeMechanism != null && activeMechanism.IsReady)
             return true;
 
-        FailTask("Görev sýrasýnda mekanizma kullanýlamaz oldu.");
+        FailTask("Gï¿½rev sï¿½rasï¿½nda mekanizma kullanï¿½lamaz oldu.");
         return false;
     }
 
@@ -360,7 +362,7 @@ public class CompanionController : MonoBehaviour
         ResetPlayerTracking();
 
         ChangeState(CompanionState.Failed);
-        Debug.LogWarning("Böcek görevi baþarýsýz: " + reason, this);
+        Debug.LogWarning("Bï¿½cek gï¿½revi baï¿½arï¿½sï¿½z: " + reason, this);
     }
 
     private void ChangeState(CompanionState next)
@@ -400,7 +402,7 @@ public class CompanionController : MonoBehaviour
         GUI.Box(
             new Rect(15f, 15f, 490f, 85f),
             "Companion: " + state +
-            "\nF: Görev | Q: Bekle | R: Takip" +
+            "\nF: Gï¿½rev | Q: Bekle | R: Takip" +
             "\n" + lastMessage
         );
     }

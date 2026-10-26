@@ -51,6 +51,8 @@ public class PotionPuzzleController : MonoBehaviour
     private int transformationRequestCount;
 
     private float movementDeadline;
+    private bool ownsCompanionControl;
+    private bool restoreCompanionOnRelease;
 
     public bool FirstLeverLatched => firstLeverLatched;
     public bool IsTransforming => isTransforming;
@@ -83,14 +85,13 @@ public class PotionPuzzleController : MonoBehaviour
     {
         if (gameProgress != null)
             gameProgress.ProgressReset += ResetPuzzle;
-
-        if (commandAction != null && commandAction.action != null)
-            commandAction.action.Enable();
     }
 
     private void Update()
     {
-        if (!PlayerControlLocks.IsLocked &&
+        if (ownsCompanionControl &&
+            firstLeverLatched &&
+            !PlayerControlLocks.IsLocked &&
             commandAction != null &&
             commandAction.action != null &&
             commandAction.action.WasPressedThisFrame())
@@ -146,6 +147,89 @@ public class PotionPuzzleController : MonoBehaviour
         }
     }
 
+    private bool TryTakeCompanionControl()
+    {
+        if (ownsCompanionControl)
+            return true;
+
+        if (companionMotor == null ||
+            !companionMotor.isActiveAndEnabled ||
+            bugInsidePoint == null ||
+            commandAction == null ||
+            commandAction.action == null)
+        {
+            SetStatus("Böcek, hedef veya F komutu bağlantısı eksik.");
+            return false;
+        }
+
+        if (companionController != null)
+        {
+            if (companionController.gameObject != companionMotor.gameObject)
+            {
+                SetStatus("Motor ve kontrolcü aynı Companion nesnesine bağlı olmalı.");
+                return false;
+            }
+
+            if (companionController.enabled &&
+                !companionController.gameObject.activeInHierarchy)
+            {
+                SetStatus("Companion nesnesi etkin değil.");
+                return false;
+            }
+
+            if (companionController.isActiveAndEnabled &&
+                companionController.IsExecutingTask)
+            {
+                SetStatus("Böcek mevcut görevini bitirsin; ardından kolu tekrar kullan.");
+                return false;
+            }
+        }
+
+        restoreCompanionOnRelease =
+            companionController != null &&
+            companionController.isActiveAndEnabled;
+
+        if (restoreCompanionOnRelease)
+        {
+            companionController.WaitHere();
+            companionController.enabled = false;
+        }
+
+        companionMotor.Stop();
+
+        commandAction.action.Enable();
+
+        ownsCompanionControl = true;
+
+        Debug.Log("Böcek kontrolü iksir sistemine devredildi.", this);
+        return true;
+    }
+
+    private void ReleaseCompanionControl()
+    {
+        if (!ownsCompanionControl)
+            return;
+
+        ownsCompanionControl = false;
+
+        if (commandAction != null && commandAction.action != null)
+            commandAction.action.Disable();
+
+        if (companionMotor != null)
+            companionMotor.Stop();
+
+        bool shouldRestore = restoreCompanionOnRelease;
+        restoreCompanionOnRelease = false;
+
+        if (shouldRestore &&
+            companionController != null &&
+            companionController.gameObject.activeInHierarchy)
+        {
+            companionController.enabled = true;
+            companionController.ResumeFollow();
+        }
+    }
+
     public bool TryLatchFirstLever()
     {
         if (!isActiveAndEnabled)
@@ -172,6 +256,9 @@ public class PotionPuzzleController : MonoBehaviour
             return false;
         }
 
+        if (!TryTakeCompanionControl())
+            return false;
+
         firstLeverLatched = true;
         SetStatus("İlk kol indirilip sabitlendi. Böceği F ile bölmeye gönder.");
 
@@ -196,6 +283,12 @@ public class PotionPuzzleController : MonoBehaviour
         if (!firstLeverLatched)
         {
             SetStatus("Önce ilk kolu indir.");
+            return;
+        }
+
+        if (!ownsCompanionControl)
+        {
+            SetStatus("Böcek kontrolü iksir sistemine devredilmemiş.");
             return;
         }
 
@@ -357,10 +450,12 @@ public class PotionPuzzleController : MonoBehaviour
         isTransforming = false;
         transformationRequestCount = 0;
 
-        if (companionMotor != null)
+        if (ownsCompanionControl && companionMotor != null)
             companionMotor.Stop();
 
         PuzzleReset?.Invoke();
+
+        ReleaseCompanionControl();
 
         SetStatus("İksir bulmacası hazır.");
     }
@@ -378,13 +473,10 @@ public class PotionPuzzleController : MonoBehaviour
         if (gameProgress != null)
             gameProgress.ProgressReset -= ResetPuzzle;
 
-        if (commandAction != null && commandAction.action != null)
-            commandAction.action.Disable();
-
         movingToStation = false;
         arrivedByCommand = false;
+        firstLeverLatched = false;
 
-        if (companionMotor != null)
-            companionMotor.Stop();
+        ReleaseCompanionControl();
     }
 }
