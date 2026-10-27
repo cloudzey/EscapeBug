@@ -315,8 +315,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17
-  m_fontSizeBase: 17
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1201,8 +1201,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 17
-  m_fontSizeBase: 17
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2711,6 +2711,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  sendButtonLabel: {fileID: 0}
 --- !u!1 &1556746102
 GameObject:
   m_ObjectHideFlags: 0
@@ -3297,6 +3298,7 @@ MonoBehaviour:
   serverUrl: http://127.0.0.1:11434
   modelName: qwen2.5:7b
   timeoutSeconds: 60
+  nextTestResponse: 0
 --- !u!4 &2009327967
 Transform:
   m_ObjectHideFlags: 0

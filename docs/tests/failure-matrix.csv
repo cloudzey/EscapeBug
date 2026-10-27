@@ -1,0 +1,14 @@
+tarih,build_commit,senaryo,beklenen,gozlenen,gecti,logDosyasi
+
+2026-10-27,belirtilmedi,Sunucu kapalı,Sistem hatası gösterilir ve mesaj korunur,ConnectionError HTTP 0 - hata mesajı ve Yeniden Dene gösterildi - mesaj korundu,Evet,Unity Console
+
+2026-10-27,belirtilmedi,Sunucu yeniden açıldı,Yeniden Dene ile mesaj tekrar gönderilir ve yanıt alınır,HTTP 200 - Felice yanıt verdi - yaklaşık 41 saniye - hata mesajı kayboldu,Evet,Unity Console
+
+2026-10-27,belirtilmedi,Yanlış model,Model bulunamadı hatası gösterilir ve mesaj korunur,HTTP 404 - sistem hatası gösterildi - mesaj korundu - Yeniden Dene göründü,Evet,Unity Console
+
+2026-10-27,belirtilmedi,Timeout 2 saniye,Zaman aşımı bildirilir ve mesaj korunur,Timeout HTTP 0 - 2001 ms - Abort çağrıldı - sistem uyarısı ve Yeniden Dene göründü - mesaj korundu,Evet,Unity Console
+
+2026-10-27,belirtilmedi,Art arda Gönder,Aynı anda birden fazla istek oluşturulmamalı,Gönder düğmesi Bekleniyor durumuna geçti - tekrar gönderim engellendi - bir konuşma turu tamamlandı,Evet,Unity Console
+
+2026-10-27,belirtilmedi,Yanıt beklerken yeniden başlatma,Eski yanıt yeni oturumda görünmemeli,Play kapatılıp yeniden açıldı - eski yanıt görünmedi - diyalog ve oyun ilerlemesi sıfırlandı,Evet,Unity Console
+
