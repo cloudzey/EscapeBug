@@ -1629,6 +1629,7 @@ MonoBehaviour:
   serverUrl: http://127.0.0.1:11434
   modelName: qwen2.5:7b
   timeoutSeconds: 180
+  nextTestResponse: 0
 --- !u!4 &639608287
 Transform:
   m_ObjectHideFlags: 0
@@ -3563,6 +3564,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  sendButtonLabel: {fileID: 1735346466}
 --- !u!114 &1254761409
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -34,6 +34,7 @@ public class DialogueController : MonoBehaviour
     private string pendingTurn;
     private string requestState;
     private int requestVersion;
+    private OllamaClient.RequestHandle activeRequest;
 
     private bool previousDialogueActive;
     private string evidenceHint = "";
@@ -71,6 +72,17 @@ public class DialogueController : MonoBehaviour
     private void Update()
     {
         bool active = DialogueActive;
+
+        if (requestInProgress &&
+            (ollamaClient == null || !ollamaClient.isActiveAndEnabled))
+        {
+            CancelRequest();
+
+            ReportError(
+                "Diyalog bağlantısı kapandı. " +
+                "Bağlantıyı açıp tekrar deneyebilirsin."
+            );
+        }
 
         if (previousDialogueActive && !active)
         {
@@ -193,67 +205,111 @@ public class DialogueController : MonoBehaviour
             Debug.Log(log.ToString(), this);
         }
 
-        StartCoroutine(ollamaClient.SendChat(messages, result =>
+        activeRequest = new OllamaClient.RequestHandle();
+        string stateAtSend = requestState;
+
+        StartCoroutine(ollamaClient.SendChat(
+            messages,
+            result => ReceiveResult(
+                version,
+                stateAtSend,
+                sentMessage,
+                result
+            ),
+            evidenceShown: gameProgress.evidenceShown,
+            canOpenExit: gameProgress.CanOpenExit(),
+            handle: activeRequest
+        ));
+    }
+
+    private void ReceiveResult(
+        int version,
+        string stateAtSend,
+        string sentMessage,
+        OllamaClient.ChatResult result)
+    {
+        if (version != requestVersion || !isActiveAndEnabled)
         {
-            if (version != requestVersion || !isActiveAndEnabled)
-                return;
-
-            requestInProgress = false;
-
-            if (requestState != CaptureState() ||
-                !CheckDialogue(out _))
-            {
-                ReportError(
-                    "Yanıt beklenirken oyun durumu değişti. " +
-                    "Mesajını yeniden gönder."
-                );
-                return;
-            }
-
-            if (result == null || !result.Success)
-            {
-                if (result != null)
-                    Debug.LogWarning("Ollama: " + result.Error, this);
-
-                ReportError(
-                    "Modelden yanıt alınamadı. " +
-                    "Bağlantıyı kontrol edip aynı mesajı tekrar gönder."
-                );
-                return;
-            }
-
-            Debug.Log("Ollama ham JSON: " + result.Content, this);
-
-            if (!NpcResponseParser.TryParse(
-                result.Content,
-                out NpcResponse response,
-                out string parseError))
-            {
-                ReportError("NPC yanıtı reddedildi: " + parseError);
-                return;
-            }
-
-            if (!TryApplyResponse(response, out string applyError))
-            {
-                ReportError(applyError);
-                return;
-            }
-
-            context.CompleteTurn(sentMessage, response);
-            pendingTurn = null;
-
             Debug.Log(
-                "Konuşma geçmişi: " +
-                context.CompletedTurnCount +
-                " tamamlanmış tur.",
+                "Eski veya iptal edilmiş yanıt yok sayıldı.",
+                this
+            );
+            return;
+        }
+
+        activeRequest = null;
+        requestInProgress = false;
+
+        if (view != null)
+            view.SetBusy(false);
+
+        if (stateAtSend != CaptureState() ||
+            !CheckDialogue(out _))
+        {
+            ReportError(
+                "Yanıt beklenirken oyun durumu değişti. " +
+                "Mesajını yeniden gönder."
+            );
+            return;
+        }
+
+        if (result == null)
+        {
+            ReportError(
+                "Modelden sonuç alınamadı. Tekrar deneyebilirsin."
+            );
+            return;
+        }
+
+        if (!result.Success)
+        {
+            ReportError(result.UserMessage);
+            return;
+        }
+
+        Debug.Log("Ollama ham JSON: " + result.Content, this);
+
+        if (!NpcResponseParser.TryParse(
+            result.Content,
+            out NpcResponse response,
+            out string parseError))
+        {
+            Debug.LogWarning(
+                "InvalidNpcResponse: " + parseError,
                 this
             );
 
-            RefreshInterface();
-        },
-            evidenceShown: gameProgress.evidenceShown,
-            canOpenExit: gameProgress.CanOpenExit()
-        ));
+            ReportError(
+                "Geçerli bir yanıt alınamadı. Tekrar deneyebilirsin."
+            );
+            return;
+        }
+
+        if (!TryApplyResponse(response, out string applyError))
+        {
+            Debug.LogWarning(
+                "NPC yanıtı uygulanmadı: " + applyError,
+                this
+            );
+
+            ReportError(
+                "Yanıt oyun durumuyla uyuşmadı veya eylem uygulanamadı. " +
+                "Tekrar deneyebilirsin."
+            );
+            return;
+        }
+
+        context.CompleteTurn(sentMessage, response);
+        pendingTurn = null;
+
+        Debug.Log(
+            "Konuşma geçmişi: " +
+            context.CompletedTurnCount +
+            " tamamlanmış tur.",
+            this
+        );
+
+        RefreshInterface();
     }
 
     private bool TryApplyResponse(
@@ -393,6 +449,13 @@ if (evidenceButton != null)
     private void CancelRequest()
     {
         requestVersion++;
+
+        if (activeRequest != null)
+        {
+            activeRequest.Cancel();
+            activeRequest = null;
+        }
+
         StopAllCoroutines();
         requestInProgress = false;
 
@@ -511,5 +574,88 @@ if (evidenceButton != null)
             persuaded = true
         });
     }
+
+    [ContextMenu("Test/4 Cancel Pending Request")]
+    private void TestCancelPendingRequest()
+    {
+        if (!Application.isPlaying || !requestInProgress)
+        {
+            Debug.LogWarning(
+                "Önce bir mesaj gönder; yanıt beklenirken bu testi çalıştır.",
+                this
+            );
+            return;
+        }
+
+        CancelRequest();
+
+        ReportError(
+            "İstek test amacıyla iptal edildi. Tekrar deneyebilirsin."
+        );
+    }
+
+    [ContextMenu("Test/5 Cancel And Inject Stale Exit")]
+    private void TestCancelAndInjectStaleExit()
+    {
+        if (!Application.isPlaying || !requestInProgress)
+        {
+            Debug.LogWarning(
+                "Önce bir mesaj gönder; yanıt beklenirken bu testi çalıştır.",
+                this
+            );
+            return;
+        }
+
+        int oldVersion = requestVersion;
+        string oldState = requestState;
+        string oldMessage = pendingTurn;
+
+        string stateBefore = CaptureState();
+        int turnsBefore = context.CompletedTurnCount;
+
+        CancelRequest();
+
+        var staleResult = new OllamaClient.ChatResult
+        {
+            Kind = OllamaClient.ResultKind.Success,
+            Content =
+                "{\"dialogue\":\"Açıklaman mektupla tutarlı.\"," +
+                "\"emotion\":\"calm\"," +
+                "\"action\":\"open_exit\"," +
+                "\"persuaded\":true}"
+        };
+
+        ReceiveResult(
+            oldVersion,
+            oldState,
+            oldMessage,
+            staleResult
+        );
+
+        bool unchanged =
+            stateBefore == CaptureState() &&
+            turnsBefore == context.CompletedTurnCount;
+
+        if (unchanged)
+        {
+            Debug.Log(
+                "TEST GEÇTİ: Eski yanıt oyun durumunu ve geçmişi değiştirmedi.",
+                this
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "TEST BAŞARISIZ: Eski yanıt durumu değiştirdi.",
+                this
+            );
+        }
+
+        ReportError(
+            "İstek iptal edildi; eski yanıt testi tamamlandı. " +
+            "Tekrar deneyebilirsin."
+        );
+    }
+
 #endif
 }

@@ -20,10 +20,17 @@ public class DialogueView : MonoBehaviour
     [SerializeField] private UnityEvent<string> onMessageSubmitted =
         new UnityEvent<string>();
 
+    [Header("Gonder dugmesinin metni")]
+    [SerializeField] private TMP_Text sendButtonLabel;
+
     private bool isBusy;
+    private bool canRetry;
 
     private void Awake()
     {
+        if (sendButtonLabel == null && sendButton != null)
+            sendButtonLabel = sendButton.GetComponentInChildren<TMP_Text>(true);
+
         replyText.richText = false;
         errorText.richText = false;
 
@@ -47,6 +54,7 @@ public class DialogueView : MonoBehaviour
 
     private void OnInputChanged(string value)
     {
+        canRetry = false;
         RefreshSendButton();
     }
 
@@ -55,6 +63,15 @@ public class DialogueView : MonoBehaviour
         sendButton.interactable =
             !isBusy &&
             !string.IsNullOrWhiteSpace(messageInput.text);
+
+        if (sendButtonLabel != null)
+        {
+            sendButtonLabel.text = isBusy
+                ? "Bekleniyor..."
+                : canRetry
+                    ? "Yeniden Dene"
+                    : "Gönder";
+        }
     }
 
     public void Submit()
@@ -70,6 +87,7 @@ public class DialogueView : MonoBehaviour
         errorText.text = "";
         errorText.gameObject.SetActive(false);
 
+        canRetry = false;
         SetBusy(true);
         onMessageSubmitted.Invoke(message);
     }
@@ -94,6 +112,7 @@ public class DialogueView : MonoBehaviour
         errorText.text = "";
         errorText.gameObject.SetActive(false);
 
+        canRetry = false;
         messageInput.SetTextWithoutNotify("");
         SetBusy(false);
 
@@ -137,6 +156,9 @@ public class DialogueView : MonoBehaviour
             : message;
 
         errorText.gameObject.SetActive(true);
+
+        canRetry = !string.IsNullOrWhiteSpace(messageInput.text);
+
         SetBusy(false);
     }
 }
