@@ -1,0 +1,9 @@
+test_id,start_id,trial,success,duration_s,failure_reason,commit,valid
+"A-1-4e56d640","A",1,true,3.557,"","SET_COMMIT",true
+"A-2-8b0e03a6","A",2,true,6.657,"","SET_COMMIT",true
+"A-3-60696fbd","A",3,true,3.545,"","SET_COMMIT",true
+"B-1-bb8d7ac0","B",1,true,6.240,"","SET_COMMIT",true
+"B-2-a123d856","B",2,true,6.238,"","SET_COMMIT",true
+"B-3-dca4d1b5","B",3,true,6.247,"","SET_COMMIT",true
+"NEG-1-f6d1884c","NEG",1,false,0.022,"Tam yol bulunamadı: PathPartial","SET_COMMIT",true
+"NEG-1-269b871e","NEG",1,true,8.942,"","SET_COMMIT",true

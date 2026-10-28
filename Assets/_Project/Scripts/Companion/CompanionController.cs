@@ -11,6 +11,10 @@ public class CompanionController : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private CompanionMechanism mechanism;
 
+    [Header("Experiment Recording")]
+    [SerializeField]
+    private AgentTrialRecorder agentTrialRecorder;
+
     [Header("Input")]
     [SerializeField] private InputActionReference commandAction;
     [SerializeField] private InputActionReference waitAction;
@@ -25,6 +29,10 @@ public class CompanionController : MonoBehaviour
     [Header("Task")]
     [SerializeField] private float mechanismStopDistance = 0.08f;
     [SerializeField] private float taskTimeout = 20f;
+
+    [Header("Experiment Settings")]
+    [SerializeField]
+    private bool startWaitingForExperiment = false;
 
     [Header("Runtime")]
     [SerializeField] private CompanionState state = CompanionState.Wait;
@@ -76,10 +84,19 @@ public class CompanionController : MonoBehaviour
         followAction.action.Enable();
     }
 
+    
     private void Start()
     {
-        ResumeFollow();
+        if (startWaitingForExperiment)
+        {
+            WaitHere();
+        }
+        else
+        {
+            ResumeFollow();
+        }
     }
+
 
     private void Update()
     {
@@ -174,6 +191,7 @@ public class CompanionController : MonoBehaviour
         lastMessage = "";
 
         ChangeState(CompanionState.MoveToTarget);
+        agentTrialRecorder?.OnAgentCommandAccepted();
 
         if (!motor.MoveTo(
             activeMechanism.InteractionPoint.position,
@@ -362,6 +380,7 @@ public class CompanionController : MonoBehaviour
         ResetPlayerTracking();
 
         ChangeState(CompanionState.Failed);
+        agentTrialRecorder?.OnAgentFailed(reason);
         Debug.LogWarning("B�cek g�revi ba�ar�s�z: " + reason, this);
     }
 

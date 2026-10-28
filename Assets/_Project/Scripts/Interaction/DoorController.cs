@@ -12,6 +12,10 @@ public class DoorController : MonoBehaviour
     [SerializeField, Min(0.01f)]
     private float openDuration = 1f;
 
+    [Header("Experiment Recording (D2 Only)")]
+    [SerializeField]
+    private AgentTrialRecorder agentTrialRecorder;
+
     public bool IsOpen { get; private set; }
     public bool IsOpening { get; private set; }
 
@@ -83,6 +87,8 @@ public class DoorController : MonoBehaviour
 
         IsOpening = false;
         IsOpen = true;
+
+        agentTrialRecorder?.OnDoorFullyOpened();
 
         Debug.Log("Kap� a��ld�.", this);
     }
