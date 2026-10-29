@@ -1,0 +1,8 @@
+test_id,trial,model,prompt_version,evidence_shown,latency_ms,http_status,json_valid,proposed_action,applied_action,rejection_reason,raw_file,commit
+"S1","1","qwen2.5:7b","felice-txt-20261030-a","false","93951","200","true","request_evidence","request_evidence","","raw/S1-01-bc5b0885.txt","GERCEK_COMMIT_KIMLIGI"
+"S1","1","qwen2.5:7b","felice-txt-20261030-a","true","92383","200","true","open_exit","open_exit","","raw/S1-01-416fae7c.txt","GERCEK_COMMIT_KIMLIGI"
+"S1","2","qwen2.5:7b","felice-txt-20261030-a","true","10993","200","true","open_exit","open_exit","","raw/S1-02-37029bf9.txt","GERCEK_COMMIT_KIMLIGI"
+"S1","3","qwen2.5:7b","felice-txt-20261030-a","true","9521","200","true","open_exit","open_exit","","raw/S1-03-fa0f6652.txt","GERCEK_COMMIT_KIMLIGI"
+"S2","1","qwen2.5:7b","felice-txt-20261030-a","false","24065","200","true","request_evidence","request_evidence","","raw/S2-01-ecd954a5.txt","GERCEK_COMMIT_KIMLIGI"
+"S2","2","qwen2.5:7b","felice-txt-20261030-a","false","13409","200","true","request_evidence","request_evidence","","raw/S2-02-aeeee721.txt","GERCEK_COMMIT_KIMLIGI"
+"S2","3","qwen2.5:7b","felice-txt-20261030-a","false","13759","200","true","request_evidence","request_evidence","","raw/S2-03-0ca54942.txt","GERCEK_COMMIT_KIMLIGI"

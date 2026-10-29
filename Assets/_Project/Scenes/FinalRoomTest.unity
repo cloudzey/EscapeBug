@@ -335,6 +335,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 22312428}
   m_CullTransparentMesh: 1
+--- !u!1 &29399060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 29399062}
+  - component: {fileID: 29399061}
+  m_Layer: 0
+  m_Name: LlmTrialRecorder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &29399061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 29399060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7f23eabf0e7aa34b922475421127a77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LlmTrialRecorder
+  testId: S2
+  trial: 3
+  modelName: qwen2.5:7b
+  promptVersion: felice-txt-20261030-a
+  commitHash: GERCEK_COMMIT_KIMLIGI
+--- !u!4 &29399062
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 29399060}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &70208179 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5300123479800383361, guid: c13d36b90e8c2884188f345a4b7d994a, type: 3}
@@ -1176,6 +1225,7 @@ MonoBehaviour:
   felicePrompt: {fileID: 4900000, guid: c059e8595d4daed4aaa9f8e9c7b755e4, type: 3}
   gameProgress: {fileID: 245637342}
   view: {fileID: 1254761408}
+  llmTrialRecorder: {fileID: 29399061}
   greteLetter: {fileID: 11400000, guid: 071994a63e471734ea4893bd4f32479b, type: 2}
   dialogueGroup: {fileID: 1254761411}
   evidenceButton: {fileID: 895577805}
@@ -5741,6 +5791,7 @@ MonoBehaviour:
   sensors: {fileID: 1945270065}
   player: {fileID: 1830973211}
   mechanism: {fileID: 0}
+  agentTrialRecorder: {fileID: 0}
   commandAction: {fileID: -1930296671592874796, guid: b0db52eae2c4d35418da38dfb6180044, type: 3}
   waitAction: {fileID: -6911844353899738222, guid: b0db52eae2c4d35418da38dfb6180044, type: 3}
   followAction: {fileID: 6917674461272658290, guid: b0db52eae2c4d35418da38dfb6180044, type: 3}
@@ -5750,6 +5801,7 @@ MonoBehaviour:
   targetMoveThreshold: 0.2
   mechanismStopDistance: 0.08
   taskTimeout: 20
+  startWaitingForExperiment: 0
   state: 1
   lastMessage: 
 --- !u!114 &1945270065
@@ -6234,6 +6286,7 @@ MonoBehaviour:
   doorVisual: {fileID: 5773266429333186525}
   openOffset: {x: 0, y: 2.5, z: 0}
   openDuration: 1
+  agentTrialRecorder: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -6252,3 +6305,4 @@ SceneRoots:
   - {fileID: 409112449}
   - {fileID: 1583215967}
   - {fileID: 1676965724}
+  - {fileID: 29399062}
