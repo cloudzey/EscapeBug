@@ -591,6 +591,7 @@ MonoBehaviour:
   felicePrompt: {fileID: 4900000, guid: c059e8595d4daed4aaa9f8e9c7b755e4, type: 3}
   gameProgress: {fileID: 368700690}
   view: {fileID: 1459839004}
+  llmTrialRecorder: {fileID: 0}
   greteLetter: {fileID: 11400000, guid: 071994a63e471734ea4893bd4f32479b, type: 2}
   dialogueGroup: {fileID: 0}
   evidenceButton: {fileID: 1187926786}
@@ -1286,6 +1287,7 @@ MonoBehaviour:
   doorVisual: {fileID: 271113950}
   openOffset: {x: 0, y: 2.5, z: 0}
   openDuration: 1
+  agentTrialRecorder: {fileID: 0}
 --- !u!4 &627635325
 Transform:
   m_ObjectHideFlags: 0

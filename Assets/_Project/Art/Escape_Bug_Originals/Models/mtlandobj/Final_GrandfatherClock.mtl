@@ -1,0 +1,62 @@
+# Blender 5.2.0 LTS MTL File: 'EscapeBug_Assets_v2.blend'
+# www.blender.org
+
+newmtl Brass
+Ka 0.700000 0.700000 0.700000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd ../Textures/Brass_BaseColor.png
+map_Ns ../Textures/Brass_Roughness.png
+
+newmtl Cream
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ../Textures/Cream_BaseColor.png
+map_Ns ../Textures/Cream_Roughness.png
+
+newmtl Ink
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ../Textures/Ink_BaseColor.png
+map_Ns ../Textures/Ink_Roughness.png
+
+newmtl Iron
+Ka 0.700000 0.700000 0.700000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd ../Textures/Iron_BaseColor.png
+map_Ns ../Textures/Iron_Roughness.png
+
+newmtl Oak
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ../Textures/Oak_BaseColor.png
+map_Ns ../Textures/Oak_Roughness.png
+
+newmtl Walnut
+Ka 0.050000 0.050000 0.050000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd ../Textures/Walnut_BaseColor.png
+map_Ns ../Textures/Walnut_Roughness.png

@@ -1,0 +1,42 @@
+# Blender 5.2.0 LTS MTL File: 'EscapeBug_Assets_v2.blend'
+# www.blender.org
+
+newmtl Cream
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ../Textures/Cream_BaseColor.png
+map_Ns ../Textures/Cream_Roughness.png
+
+newmtl Leaf
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ../Textures/Leaf_BaseColor.png
+map_Ns ../Textures/Leaf_Roughness.png
+
+newmtl Oak
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ../Textures/Oak_BaseColor.png
+map_Ns ../Textures/Oak_Roughness.png
+
+newmtl Walnut
+Ka 0.050000 0.050000 0.050000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd ../Textures/Walnut_BaseColor.png
+map_Ns ../Textures/Walnut_Roughness.png
