@@ -1,0 +1,1 @@
+{"dialogue":"Şimdi anlıyorum, Grete seni tehlikelere karşı uyarmış. Teşekkür ederim.","action":"open_exit","emotion":"calm","persuaded":true}

@@ -1,0 +1,1 @@
+{"dialogue":"Anladım, Grete'nin mektubunu gördün ve ona inanmıyorum. Ama belki beni yanlış yorumladığını gösterebilirim. Çıkış kapısını aç.","action":"request_evidence","emotion":"suspicious","persuaded":false}

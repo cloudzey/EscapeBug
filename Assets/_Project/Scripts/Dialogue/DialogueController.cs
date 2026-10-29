@@ -13,6 +13,10 @@ public class DialogueController : MonoBehaviour
     [SerializeField] private GameProgress gameProgress;
     [SerializeField] private DialogueView view;
 
+    [Header("LLM Experiment")]
+    [SerializeField]
+    private LlmTrialRecorder llmTrialRecorder;
+
     [Header("Kanit mektubu")]
     [SerializeField] private LetterData greteLetter;
 
@@ -208,6 +212,21 @@ public class DialogueController : MonoBehaviour
         activeRequest = new OllamaClient.RequestHandle();
         string stateAtSend = requestState;
 
+        llmTrialRecorder?.BeginTrial(gameProgress.evidenceShown);
+
+        StartCoroutine(ollamaClient.SendChat(
+            messages,
+            result => ReceiveResult(
+                version,
+                stateAtSend,
+                sentMessage,
+                result
+            ),
+            evidenceShown: gameProgress.evidenceShown,
+            canOpenExit: gameProgress.CanOpenExit(),
+            handle: activeRequest
+        ));
+
         StartCoroutine(ollamaClient.SendChat(
             messages,
             result => ReceiveResult(
@@ -246,6 +265,8 @@ public class DialogueController : MonoBehaviour
         if (stateAtSend != CaptureState() ||
             !CheckDialogue(out _))
         {
+            llmTrialRecorder?.CancelTrial("game_state_changed");
+
             ReportError(
                 "Yanıt beklenirken oyun durumu değişti. " +
                 "Mesajını yeniden gönder."
@@ -255,6 +276,16 @@ public class DialogueController : MonoBehaviour
 
         if (result == null)
         {
+            llmTrialRecorder?.FinishTrial(
+                false,
+                "unknown",
+                "none",
+                "null_result",
+                "",
+                -1,
+                -1
+            );
+
             ReportError(
                 "Modelden sonuç alınamadı. Tekrar deneyebilirsin."
             );
@@ -263,11 +294,24 @@ public class DialogueController : MonoBehaviour
 
         if (!result.Success)
         {
+            llmTrialRecorder?.FinishTrial(
+                false,
+                "unknown",
+                "none",
+                result.Kind + ": " + (result.Error ?? ""),
+                result.Content,
+                result.HttpStatus,
+                result.ElapsedMilliseconds
+            );
+
             ReportError(result.UserMessage);
             return;
         }
 
-        Debug.Log("Ollama ham JSON: " + result.Content, this);
+        Debug.Log(
+            "Ollama ham JSON: " + result.Content,
+            this
+        );
 
         if (!NpcResponseParser.TryParse(
             result.Content,
@@ -279,13 +323,39 @@ public class DialogueController : MonoBehaviour
                 this
             );
 
+            llmTrialRecorder?.FinishTrial(
+                false,
+                "unknown",
+                "none",
+                "parse_error: " + parseError,
+                result.Content,
+                result.HttpStatus,
+                result.ElapsedMilliseconds
+            );
+
             ReportError(
-                "Geçerli bir yanıt alınamadı. Tekrar deneyebilirsin."
+                "Geçerli bir yanıt alınamadı. " +
+                "Tekrar deneyebilirsin."
             );
             return;
         }
 
-        if (!TryApplyResponse(response, out string applyError))
+        bool applied = TryApplyResponse(
+            response,
+            out string applyError
+        );
+
+        llmTrialRecorder?.FinishTrial(
+            true,
+            response.action,
+            applied ? response.action : "none",
+            applied ? "" : applyError,
+            result.Content,
+            result.HttpStatus,
+            result.ElapsedMilliseconds
+        );
+
+        if (!applied)
         {
             Debug.LogWarning(
                 "NPC yanıtı uygulanmadı: " + applyError,
@@ -293,8 +363,8 @@ public class DialogueController : MonoBehaviour
             );
 
             ReportError(
-                "Yanıt oyun durumuyla uyuşmadı veya eylem uygulanamadı. " +
-                "Tekrar deneyebilirsin."
+                "Yanıt oyun durumuyla uyuşmadı veya " +
+                "eylem uygulanamadı. Tekrar deneyebilirsin."
             );
             return;
         }
@@ -449,6 +519,7 @@ if (evidenceButton != null)
     private void CancelRequest()
     {
         requestVersion++;
+        llmTrialRecorder?.CancelTrial("request_cancelled");
 
         if (activeRequest != null)
         {
