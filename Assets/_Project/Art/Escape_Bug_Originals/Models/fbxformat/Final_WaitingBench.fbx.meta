@@ -3,7 +3,27 @@ guid: 2529baf286bba8741a43fbd3b5e45450
 ModelImporter:
   serializedVersion: 24600
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Brass
+    second: {fileID: 2100000, guid: 480930b960d265048b23a8ae74861d2c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Iron
+    second: {fileID: 2100000, guid: 0828f70dca309b047b53ef5257ae255b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Oak
+    second: {fileID: 2100000, guid: e0f2e077e2187004381167c37eda7406, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Walnut
+    second: {fileID: 2100000, guid: 647724645aef8b044ae0185c723a285a, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

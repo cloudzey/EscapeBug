@@ -3,7 +3,27 @@ guid: 9513f740b0a86ba47bcbf6ccd4e2bf9e
 ModelImporter:
   serializedVersion: 24600
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Brass
+    second: {fileID: 2100000, guid: 480930b960d265048b23a8ae74861d2c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Leather
+    second: {fileID: 2100000, guid: 119f9314adc29a04dbaad905579c5f26, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Oak
+    second: {fileID: 2100000, guid: e0f2e077e2187004381167c37eda7406, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Walnut
+    second: {fileID: 2100000, guid: 647724645aef8b044ae0185c723a285a, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
