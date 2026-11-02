@@ -7,3 +7,13 @@ test_id,start_id,trial,success,duration_s,failure_reason,commit,valid
 "B-3-dca4d1b5","B",3,true,6.247,"","SET_COMMIT",true
 "NEG-1-f6d1884c","NEG",1,false,0.022,"Tam yol bulunamadı: PathPartial","SET_COMMIT",true
 "NEG-1-269b871e","NEG",1,true,8.942,"","SET_COMMIT",true
+
+C-1,C,1,true,29.448,,172fb71,true
+C-2,C,2,true,17.002,,172fb71,true
+C-3,C,3,true,15.737,,172fb71,true
+D-1,D,1,true,16.068,,172fb71,true
+D-2,D,2,true,23.590,,172fb71,true
+D-3,D,3,true,15.902,,172fb71,true
+E-1,E,1,true,21.104,,172fb71,true
+E-2,E,2,true,16.329,,172fb71,true
+E-3,E,3,true,16.386,,172fb71,true
