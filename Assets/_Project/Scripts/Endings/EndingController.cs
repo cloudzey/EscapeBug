@@ -20,6 +20,15 @@ public class EndingController : MonoBehaviour
     [SerializeField] private PotionPuzzleController puzzle;
     [SerializeField] private PotionSelectionUI potionUI;
 
+    [Header("Potion Hikaye Diyaloglari")]
+    [SerializeField] private StoryDialogueUI storyDialogueUI;
+
+    [SerializeField]
+    private StoryDialogueSequence beforeTransformationDialogue;
+
+    [SerializeField]
+    private StoryDialogueSequence afterTransformationDialogue;
+
     [Header("Mevcut oyuncu")]
     [SerializeField] private Transform playerRoot;
     [SerializeField] private PlayerMotor playerMotor;
@@ -106,6 +115,14 @@ public class EndingController : MonoBehaviour
 
     private bool capturedState;
     private Coroutine sequence;
+
+    private bool potionDialogueFinished;
+
+    private void OnPotionDialogueFinished()
+    {
+        potionDialogueFinished = true;
+    }
+
 
     public EndingState State { get; private set; }
         = EndingState.Exploration;
@@ -252,6 +269,19 @@ public class EndingController : MonoBehaviour
         return false;
     }
 
+    if (storyDialogueUI == null ||
+        !storyDialogueUI.isActiveAndEnabled ||
+        beforeTransformationDialogue == null ||
+        !beforeTransformationDialogue.isActiveAndEnabled ||
+        afterTransformationDialogue == null ||
+        !afterTransformationDialogue.isActiveAndEnabled)
+    {
+        error =
+            "Potion diyalog baglantilari eksik veya etkin degil.";
+
+        return false;
+    }
+
     return true;
 }
 
@@ -333,8 +363,84 @@ public class EndingController : MonoBehaviour
         capturedState = true;
     }
 
+    private IEnumerator PlayPotionDialogueAndWait(
+        StoryDialogueSequence dialogue)
+    {
+        potionDialogueFinished = false;
+
+        if (storyDialogueUI == null ||
+            !storyDialogueUI.isActiveAndEnabled ||
+            dialogue == null ||
+            !dialogue.isActiveAndEnabled)
+        {
+            Debug.LogError(
+                "Potion diyaloğu bağlantısı eksik veya etkin değil.",
+                this
+            );
+            yield break;
+        }
+
+        storyDialogueUI.DialogueFinished +=
+            OnPotionDialogueFinished;
+
+        try
+        {
+        if (!dialogue.TryPlay())
+            {
+                Debug.LogError(
+                "Potion diyaloğu başlatılamadı: " +
+                dialogue.name,
+                this
+                );
+
+                yield break;
+            }
+
+            while (!potionDialogueFinished &&
+                storyDialogueUI != null &&
+                storyDialogueUI.isActiveAndEnabled)
+            {
+                yield return null;
+            }
+        }
+        finally
+        {
+            if (storyDialogueUI != null)
+            {
+                storyDialogueUI.DialogueFinished -=
+                    OnPotionDialogueFinished;
+            }
+        }
+    }
+
     private IEnumerator TransformationRoutine()
     {
+        Debug.Log(
+            "Ending: Donusum oncesi diyalog basliyor.",
+            this
+        );
+
+        yield return PlayPotionDialogueAndWait(
+            beforeTransformationDialogue
+        );
+
+        if (!potionDialogueFinished)
+        {
+            Debug.LogError(
+                "Ending: Donusum oncesi diyalog tamamlanamadi.",
+            this
+            );
+
+            sequence = null;
+            ResetSequence();
+            yield break;
+        }
+
+        Debug.Log(
+            "Ending: Donusum oncesi diyalog bitti.",
+            this
+        );
+
         Debug.Log("Ending: Ekran karariyor.", this);
         yield return FadeTo(1f);
 
@@ -350,11 +456,38 @@ public class EndingController : MonoBehaviour
         if (blackHoldDuration > 0f)
             yield return new WaitForSecondsRealtime(blackHoldDuration);
 
-        Debug.Log("Ending: Insan gorunumu gosteriliyor.", this);
+        
+        Debug.Log(
+            "Ending: Insan gorunumu gosteriliyor.",
+            this
+        );
+
         yield return FadeTo(0f);
 
         Debug.Log(
-            "Ending: Beden degisimi tamamlandi. Ikinci kola geciliyor.",
+            "Ending: Donusum sonrasi diyalog basliyor.",
+            this
+        );
+
+        yield return PlayPotionDialogueAndWait(
+            afterTransformationDialogue
+        );
+
+        if (!potionDialogueFinished)
+        {
+            Debug.LogError(
+                "Ending: Donusum sonrasi diyalog tamamlanamadi.",
+                this
+            );
+
+            sequence = null;
+            ResetSequence();
+            yield break;
+        }
+
+        Debug.Log(
+            "Ending: Donusum sonrasi diyalog bitti. " +
+            "Ikinci kola geciliyor.",
             this
         );
 
@@ -365,7 +498,7 @@ public class EndingController : MonoBehaviour
     }
 
     private IEnumerator UseSecondLeverRoutine()
-{
+    {
     if (State != EndingState.Transforming ||
         !BodySwapCompleted ||
         !puzzle.FirstLeverLatched ||

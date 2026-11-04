@@ -26,6 +26,10 @@ public class LetterReader : MonoBehaviour
     [SerializeField] private Image symbolImage;
     [SerializeField] private LetterSymbolEntry[] letterSymbols;
 
+    private LetterData currentLetter;
+
+    public event Action<LetterData> LetterClosed;
+
     public bool IsOpen { get; private set; }
 
     public bool IsReady =>
@@ -75,6 +79,9 @@ public class LetterReader : MonoBehaviour
 
     public bool Open(LetterData letter)
     {
+        if (IsOpen)
+            return false;
+
         if (!IsReady || letter == null)
         {
             Debug.LogWarning(
@@ -93,11 +100,12 @@ public class LetterReader : MonoBehaviour
             !string.IsNullOrWhiteSpace(letter.displayedDate)
         );
 
-        // Acilan mektubun sembolunu goster.
         RefreshSymbol(letter);
 
         PlayerControlLocks.Acquire(this);
+        currentLetter = letter;
         IsOpen = true;
+
         panelRoot.SetActive(true);
 
         Canvas.ForceUpdateCanvases();
@@ -134,7 +142,16 @@ public class LetterReader : MonoBehaviour
 
     public void Close()
     {
+        CloseInternal(true);
+    }
+
+    private void CloseInternal(bool notifyDialogue)
+    {
+        bool wasOpen = IsOpen;
+        LetterData closedLetter = currentLetter;
+
         IsOpen = false;
+        currentLetter = null;
 
         PlayerControlLocks.Release(this);
 
@@ -143,6 +160,16 @@ public class LetterReader : MonoBehaviour
 
         if (panelRoot != null)
             panelRoot.SetActive(false);
+
+        if (notifyDialogue && wasOpen && closedLetter != null)
+        {
+            Debug.Log(
+                "[Archive] Letter closed: " + closedLetter.id,
+                this
+            );
+
+            LetterClosed?.Invoke(closedLetter);
+        }
     }
 
     private void OnDisable()
@@ -150,6 +177,7 @@ public class LetterReader : MonoBehaviour
         if (closeButton != null)
             closeButton.onClick.RemoveListener(Close);
 
-        Close();
+        CloseInternal(false);
     }
+
 }
