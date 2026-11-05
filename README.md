@@ -521,7 +521,9 @@ Durum makinesi kontrol listesinde 15 madde tamamlanmış olarak işaretlidir. Bu
 | Aynı testte engelin kaldırılması | Erişim true, kapı açılışı, tekrar kullanımda yeni hareket yok. | Metinsel test kaydı olumlu. |
 | Ayrı negatif sensör sahnesi | Erişim true, böcek şalteri etkin, insan şalteri bekleniyor. | Bu denemede görüş engeli reddi doğrulanamadı. |
 
-Erken test belgesinde anılan `blocked.png` ve `clear.png` dosyaları mevcut kaynak ağacında bulunamadı. Daha sonraki negatif deneyde engelin gerçek sensör ışını üzerine yerleştirilmesi gerektiği açık görev olarak bırakılmıştır. [Erken sensör testi](docs/tests/README.md) · [Negatif sensör gözlemi](docs/tests/sensor-obsevations.md)
+Sensör testlerinde, hedefe ulaşılabilen ve görüşün bir engelle kesildiği durumları değerlendirildi. İlk testlerdeki gözlemleri sensör testi belgesine kaydedildi. Daha sonraki negatif denemede ise engelin sensör ışınını kesmediği görüldü. Bu senaryonun doğrulanması için engelin görüş hattına yerleştirilerek testin tekrarlanması gerekiyor.
+
+[Sensör testleri](docs/tests/README.md) · [Negatif test gözlemleri](docs/tests/sensor-obsevations.md)
 
 ![Geliştirme kaydı. Ajanın E-3 görev başlangıcı ve sensör ayarları.](docs/screenshots/sensor-normal.png)
 
