@@ -382,7 +382,7 @@ finalDialogueActive
 
 ### 3.6. Asenkron çalışma ve kullanıcı geri bildirimi
 
-HTTP isteği coroutine içinde `UnityWebRequest` ile yürütülür. İstek tamamlanana kadar her karede kontrol bırakılır. Bekleme göstergesi ve gönderim kilidi, oyuncunun isteğin sürdüğünü anlamasını sağlar. Bu yapı ağ yanıtını eşzamanlı bekleyerek oyun döngüsünü kilitlemeyi önler. Kare hızı üzerindeki etkisi için ayrıca bir performans ölçümü bulunmamaktadır.
+LLM isteği, `UnityWebRequest` ve coroutine kullanılarak oyun döngüsünü bloke etmeden yürütülür. Yanıt beklenirken arayüzde bekleme göstergesi açılır ve yeni mesaj gönderimi geçici olarak engellenir. Böylece oyuncu isteğin devam ettiğini görebilir ve aynı anda birden fazla istek göndermez. Bu çalışmada yanıt süresi ölçülmüş, FPS üzerindeki etki için ayrı bir ölçüm yapılmamıştır.
 
 Her istek bir sürüm numarası ve `RequestHandle` ile takip edilir. Oyun sıfırlanırsa veya oturum kapanırsa istek iptal edilebilir. Yanıtın geldiği anda gönderim sırasındaki oyun durumuyla güncel durum karşılaştırılır. Eski oturuma veya değişmiş koşullara ait yanıt uygulanmaz. [Diyalog denetleyicisi](Assets/_Project/Scripts/Dialogue/DialogueController.cs)
 
@@ -406,40 +406,40 @@ Hatalar sistem bildirimi olarak gösterilir. Oyuncunun yazdığı mesaj yeniden 
 
 ```mermaid
 flowchart TD
-    A["Yanıt veya istek sonucu"] --> B{"Bağlantı ve süre uygun mu?"}
-    B -->|Hayır| E["Sistem uyarısı ve yeniden deneme"]
-    B -->|Evet| C{"HTTP ve yanıt zarfı geçerli mi?"}
-    C -->|Hayır| E
-    C -->|Evet| D{"JSON ve alanlar geçerli mi?"}
+    A["Yanıt veya istek sonucu"] --> B{"İstek güncel oturuma mı ait?"}
+    B -->|Hayır| X["Yanıtı yok say"]
+    B -->|Evet| C{"Oyun durumu hâlâ uygun mu?"}
+    C -->|Hayır| E["Sistem uyarısı ve yeniden deneme"]
+    C -->|Evet| D{"Bağlantı ve yanıt zarfı geçerli mi?"}
     D -->|Hayır| E
-    D -->|Evet| F{"İstek güncel ve eylem uygulanabilir mi?"}
+    D -->|Evet| F{"JSON ve alanlar geçerli mi?"}
     F -->|Hayır| E
-    F -->|Evet| G["Eylemi uygula ve yanıtı göster"]
+    F -->|Evet| G{"Eylem oyun kurallarına uygun mu?"}
+    G -->|Hayır| E
+    G -->|Evet| H["Eylemi uygula ve yanıtı göster"]
 ```
 
-Editör içindeki test yanıtları, bozuk zarf, bozuk JSON, yanlış boolean türü ve bilinmeyen eylem gibi durumları kontrollü olarak üretmek için kullanılır. Gerçek LLM ölçümlerinde bu seçenek `None` tutulur. Kodda bulunan bir hata senaryosu, ilgili çalışma kaydı olmadan tamamlanmış test sonucu sayılmaz. [İstemci ve test seçenekleri](Assets/_Project/Scripts/Dialogue/OllamaClient.cs)
+Hata yönetimini sınamak için editörde bozuk yanıt zarfı, bozuk JSON, yanlış boolean türü ve bilinmeyen eylem üreten test seçenekleri kullanılır. Gerçek model yanıtlarının ölçüldüğü deneylerde bu seçenek `None` olarak tutulur. Uygulanan hata senaryoları ve sonuçları Bölüm 5.7'de verilmiştir. [İstemci ve test seçenekleri](Assets/_Project/Scripts/Dialogue/OllamaClient.cs)
 
 <a id="testler"></a>
 ## 5. Ekran görüntüleri, testler ve sonuçlar
 
 ### 5.1. Oyun içi ekran görüntüleri
 
-Aşağıdaki on görüntü, oyunun giriş, bakım, arşiv, iksir ve final aşamalarını Unity Game görünümünde belgelemektedir. Görseller 5 Kasım 2026 tarihinde rapora eklenmiştir. Her açıklama, ilgili karede görülen durumu belirtir; sayısal test sonuçları sonraki alt bölümlerde ayrıca değerlendirilir.
-
+Aşağıdaki ekran görüntüleri, oyunun giriş, bakım, arşiv, iksir ve final bölümlerindeki temel mekanikleri göstermektedir. Görüntüler Unity Editor'ün Game penceresinden alınmıştır.
 #### Giriş ve yardımcı ajan
 
 ![Şekil 1. Giriş alanında Kafka ve yardımcı böcek.](docs/screenshots/final/01-entrance.png)
 
-**Şekil 1 — Giriş alanı.** Kafka, karşılama masasının yanında görülmektedir. Sol üstte yardımcı ajanın `Follow` durumu ve F/Q/R komutları gösterilir. Bu görünüm, karakterin ve yardımcı böceğin oyun ortamındaki yerleşimini belgeler.
+**Şekil 1 — Giriş alanı.** Kafka, karşılama masasının yanındadır. Sol üstte yardımcı böceğin `Follow` durumu ve F/Q/R komutları gösterilmektedir.
 
 ![Şekil 2. Bakım tüneli önünde MoveToTarget durumundaki yardımcı ajan.](docs/screenshots/final/02-companion-task.png)
 
-**Şekil 2 — Böceğe görev verilmesi.** Bakım alanındaki dar geçit, kontrol panosu ve oyuncu aynı karede görülmektedir. Durum panelindeki `MoveToTarget`, yardımcı ajanın hedefe ilerleme aşamasında olduğunu gösterir. Görevin tamamlanması bu kareden tek başına çıkarılmaz.
+**Şekil 2 — Böceğe görev verilmesi.** Yardımcı böcek, bakım alanındaki mekanizmaya doğru ilerlemektedir. Durum panelinde hedefe hareket aşamasını belirten `MoveToTarget` bilgisi yer almaktadır.
 
 ![Şekil 3. Görevden dönen böcek ve kapalı D2 kapısı.](docs/screenshots/final/03-d2-switches.png)
 
-**Şekil 3 — D2'nin iki şalter koşulu.** Yardımcı ajan yeniden `Follow` durumundadır ve panelde görevin tamamlandığına ilişkin bildirim vardır. D2 bu anda hâlâ kapalıdır. Kapının yanındaki açıklama, ana kontrol ile bakım tüneli şalterinin birlikte etkinleştirilmesi gerektiğini belirtir. Görsel, ajanın dönüşünü ve kapı mekanizmasının oyuncuya sunuluşunu belgeler; açık kapı sonucu olarak kullanılmaz.
-
+**Şekil 3 — D2 kapısı ve şalterler.** Böcek görevini tamamlayarak `Follow` durumuna dönmüştür. D2 kapısı bu aşamada kapalıdır. Kapının açılması için ana kontrol ve bakım tüneli şalterlerinin birlikte etkinleştirilmesi gerekir.
 #### Mektuplar ve arşiv bulmacası
 
 ![Şekil 4. Grete'nin uyarısı başlıklı mektubun okuma arayüzü.](docs/screenshots/final/04-grete-letter.png)
@@ -448,31 +448,31 @@ Aşağıdaki on görüntü, oyunun giriş, bakım, arşiv, iksir ve final aşama
 
 ![Şekil 5. Anahtar, Göz ve Güve sıralamasıyla açılan arşiv kilidi.](docs/screenshots/final/05-symbol-lock.png)
 
-**Şekil 5 — Sembol kilidinin çözülmesi.** Üç seçim alanında `Anahtar → Göz → Güve` sırası bulunmaktadır. Yeşil “Açıldı” geri bildirimi, bu denemedeki kombinasyonun kabul edildiğini gösterir. Oyuncu, mektuplardaki tarih ve sembolleri birleştirerek bulmacayı çözer.
+**Şekil 5 — Arşiv kilidinin çözülmesi.** `Anahtar → Göz → Güve` sıralaması kabul edilmiş ve “Açıldı” bildirimi gösterilmiştir. Bulmaca, mektuplardaki tarih ve sembol bilgilerinin birlikte değerlendirilmesine dayanır.
 
 #### İksir seçimi ve dönüşüm akışı
 
 ![Şekil 6. Biçim aktarımı etiketinin ve iksir seçim düğmelerinin gösterimi.](docs/screenshots/final/06-potion-selection.png)
 
-**Şekil 6 — İksir etiketinin incelenmesi.** Seçim panelinde “Biçim aktarımı, çift yönlüdür.” açıklaması ile “Seç” ve “Kapat” düğmeleri görülmektedir. Üstteki yönerge, ilk kolun sabitlendiğini ve böceğin F komutuyla bölmeye gönderilmesi gerektiğini bildirir. Böylece iksir seçimi, yardımcı ajanla yürütülen mekanizma sırasına bağlanır.
+**Şekil 6 — İksir seçimi.** Oyuncu, “Biçim aktarımı, çift yönlüdür.” etiketini inceleyerek iksiri seçebilir. Üstteki yönerge, ilk kolun sabitlendiğini ve böceğin F komutuyla bölmeye gönderilmesi gerektiğini belirtmektedir.
 
 ![Şekil 7. İksir uygulamasından sonra dönüşüm isteğinin oluşturulması.](docs/screenshots/final/07-transformation.png)
 
-**Şekil 7 — Dönüşüm isteği.** “İksir uygulandı.” ve “DÖNÜŞÜM İSTEĞİ OLUŞTU — İstek sayısı: 1” bildirimleri, uygulama sonrasında dönüşüm isteğinin üretildiğini gösterir. Bu kare isteğin oluşmasını belgeler; bütün beden değişimi animasyonunun tamamlandığını tek başına göstermez.
+**Şekil 7 — Dönüşüm isteğinin oluşturulması.** İksirin uygulanmasının ardından dönüşüm isteği oluşturulmuş ve arayüzde istek sayısı 1 olarak gösterilmiştir.
 
 #### Final konuşması ve çıkış
 
 ![Şekil 8. Final alanında Felice'nin giriş konuşması.](docs/screenshots/final/08-final-dialogue.png)
 
-**Şekil 8 — Final konuşmasına giriş.** Felice, Kafka'dan yaşananları açıklamasını ister: “Kafka, artık sıra sende. Bana gerçekte ne olduğunu anlat.” Bu panel, serbest metinli LLM görüşmesinden önceki hikâye konuşmasını gösterir. “Devam” düğmesi ile ilerlenir; çıkış kapısı bu karede kapalıdır.
+**Şekil 8 — Final konuşmasına giriş.** Felice, Kafka'dan yaşananları açıklamasını istemektedir. Bu hikâye konuşmasının ardından oyuncu, serbest metinli diyalog arayüzüne geçer.
 
 ![Şekil 9. Kanıt gösterilmişken Felice'nin sakin duygulu yanıtı.](docs/screenshots/final/09-felice-evidence.png)
 
-**Şekil 9 — Kanıtın konuşmaya bağlanması.** Arayüzde “Mektup gösterildi.” bilgisi, devre dışı kanıt düğmesi ve “Duygu: Sakin” etiketi görülmektedir. Felice'nin yanıtı Grete'nin mektubundaki uyarıyı yorumlar. Oyuncunun serbest metin girişi ve gönderme düğmesi aynı panelde bulunur. Bu görüntü, diyalog metni, duygu ve kanıt durumunun birlikte sunulduğunu belgeler; ham JSON ve gecikme bilgisi içermediği için sayısal LLM deneylerine yeni bir kayıt olarak eklenmemiştir.
+**Şekil 9 — Felice'ye kanıt gösterilmesi.** “Mektup gösterildi.” bildirimi ve devre dışı kalan kanıt düğmesi, kanıt sunma işleminin tamamlandığını göstermektedir. Felice'nin mektuba ilişkin yanıtı ve “Sakin” duygu etiketi aynı panelde yer almaktadır.
 
 ![Şekil 10. Final alanında açılmış çıkış kapısı ve karakterler.](docs/screenshots/final/10-exit-open.png)
 
-**Şekil 10 — Açık final çıkışı.** Kafka, Felice, Grete ve yardımcı böcek final alanında görülürken çıkış kapısının açık olduğu gözlenmektedir. Kare, fiziksel kapı açılma sonucunu gösterir. Ayrı bir bitiş ekranı veya oyuncunun çıkış tetikleyicisinden geçtiğinin kaydı değildir.
+**Şekil 10 — Final çıkışının açılması.** Final alanında karakterler ve yardımcı böcek görülmektedir. Çıkış kapısı açılmış ve geçiş kullanılabilir hâle gelmiştir. 
 
 ### 5.2. Test yöntemi ve ölçütler
 
@@ -482,13 +482,12 @@ Testler görev başarısı, yanıt biçimi, eylem uygunluğu ve konuşma kalites
 | --- | --- |
 | Ajan görev başarısı | Kabul edilen görevden sonra D2'nin tamamen açılması. |
 | Ajan süresi | Komutun kabulünden kapının tamamen açılmasına kadar geçen duvar saati süresi. |
-| JSON geçerliliği | Yanıtın parser ve validator denetimlerinden geçmesi. |
+| JSON geçerliliği | Yanıtın JSON ayrıştırma, zorunlu alan ve veri türü kontrollerinden geçmesi. Oyun kurallarına uygunluğu ayrıca değerlendirilir. |
 | Eylem uygunluğu | Önerilen eylemin senaryo koşullarıyla uyumu ve uygulanan eylem. |
 | LLM gecikmesi | İsteğin başlatılmasından yanıtın işlenmesine kadar kaydedilen toplam süre. |
 | Konuşma kalitesi | Türkçe doğallığı, rol tutarlılığı, kanıt durumuyla uyum ve konuya bağlılık. |
 
-Ajan başarı oranı, başarılı geçerli normal denemelerin tüm geçerli normal denemelere oranıdır. Negatif yol deneyleri kendi beklenen sonuçlarına göre ayrıca değerlendirilir. LLM'de JSON geçerliliği ve doğru eylem, metnin anlamsal doğruluğuyla birlikte incelenir.
-
+Ajan başarı oranı, başarılı normal deneme sayısının geçerli normal deneme sayısına bölünmesiyle hesaplanmıştır. Negatif yol ve sensör deneyleri ayrı değerlendirilmiştir. LLM testlerinde JSON geçerliliği, eylemin oyun koşullarına uygunluğu ve konuşma metninin tutarlılığı ayrı ölçütler olarak ele alınmıştır.
 ### 5.3. Otonom ajan ölçümleri
 
 A ve B testleri için kayıtlı koşullar aynı motor hızı, NavMesh ve mekanizma hedefidir. D2 başlangıçta kapalıdır. İnsan şalteri görevden önce hazırlanır ve ajan `Wait` durumundadır. A konumu `(0, 0, 3.02)`, B konumu `(-2.54, 0, 2.51)` olarak kaydedilmiştir. C, D ve E için CSV sonuçları bulunur, başlangıç koordinatları aynı belgeye eklenmemiştir.
@@ -521,7 +520,7 @@ Durum makinesi kontrol listesinde 15 madde tamamlanmış olarak işaretlidir. Bu
 | Aynı testte engelin kaldırılması | Erişim true, kapı açılışı, tekrar kullanımda yeni hareket yok. | Metinsel test kaydı olumlu. |
 | Ayrı negatif sensör sahnesi | Erişim true, böcek şalteri etkin, insan şalteri bekleniyor. | Bu denemede görüş engeli reddi doğrulanamadı. |
 
-Sensör testlerinde, hedefe ulaşılabilen ve görüşün bir engelle kesildiği durumları değerlendirildi. İlk testlerdeki gözlemleri sensör testi belgesine kaydedildi. Daha sonraki negatif denemede ise engelin sensör ışınını kesmediği görüldü. Bu senaryonun doğrulanması için engelin görüş hattına yerleştirilerek testin tekrarlanması gerekiyor.
+İlk sensör testinde görüş hattına yerleştirilen engel, mekanizma etkileşimini durdurmuş; engel kaldırıldığında etkileşim gerçekleşmiştir. Daha sonraki ayrı bir negatif denemede ise engel etkin olmasına rağmen sensör hedefi erişilebilir olarak değerlendirmiştir. Bu denemede görüş engeli koşulu doğrulanamamıştır. Sensörün başlangıç ve hedef noktaları kontrol edilerek engelin görüş hattına yerleştirilmesi ve testin tekrarlanması gerekmektedir.
 
 [Sensör testleri](docs/tests/README.md) · [Negatif test gözlemleri](docs/tests/sensor-obsevations.md)
 
@@ -531,7 +530,7 @@ Bu görüntüde durum `MoveToTarget` aşamasındadır ve sensör hedefi henüz k
 
 ### 5.5. Güncel LLM senaryoları
 
-30 Ekim yapılandırmasında `qwen2.5:7b`, `felice-txt-20261030-a` promptu ve 180 saniyelik süre sınırı kullanılmıştır. Test planı iki senaryoyu üçer kez, her denemede yeni konuşmayla çalıştırmayı öngörür. S1 grubu `evidence_shown=true`, S2 grubu `evidence_shown=false` kayıtlarından oluşur. [Test yapılandırması](docs/tests/llm/llm-test-config.md)
+30 Ekim tarihli LLM testlerinde `qwen2.5:7b`, `felice-txt-20261030-a` promptu ve 180 saniyelik süre sınırı kullanılmıştır. Ana değerlendirme, kanıtın gösterildiği S1 ve gösterilmediği S2 senaryolarının üçer denemesinden oluşmaktadır. Test düzeninde her denemeye yeni bir konuşmayla başlanması esas alınmıştır. [Test yapılandırması](docs/tests/llm/llm-test-config.md)
 
 | Senaryo | Deneme | Gecikme | JSON | Önerilen eylem | Uygulanan eylem |
 | --- | ---: | ---: | --- | --- | --- |
@@ -562,9 +561,9 @@ Kanıtlı senaryoda eylem kabul edilmiş ve çıkış açma işlemi uygulanmış
 
 Eylem, kanıtın gösterilmesini istemiştir. Bununla birlikte konuşma metni, mektup gösterilmemişken Felice'nin onu tekrar okuduğunu ima eder. Bu örnek konuşmanın anlamsal tutarlılığı için ek değerlendirme gerektiğini gösterir. [Ham yanıt](docs/tests/llm/raw/S2-01-ecd954a5.txt)
 
-### 5.6. Farklı konuşma davranışları ve tarihsel testler
+### 5.6. Farklı konuşma senaryoları ve önceki testler
 
-Güncel CSV'deki ek davranış kayıtları aşağıdadır. Senaryo adlandırmaları ekip tarafından paylaşılan örnek rapordaki G-HK, G-AL ve G-KU açıklamalarına dayanır. Bu satırlarda ham yanıt dosyası ve prompt sürümü kayıtlı değildir.
+Hakaret veya suçlama, alakasız konuşma ve rol değiştirme girişimleri için ek denemeler yapılmıştır. Bu senaryolar sırasıyla G-HK, G-AL ve G-KU kodlarıyla kaydedilmiştir. Eylem sonuçları aşağıdaki tabloda verilmiştir.
 
 | Senaryo | Kayıt sayısı | Kaydedilen eylem |
 | --- | ---: | --- |
@@ -572,7 +571,7 @@ Güncel CSV'deki ek davranış kayıtları aşağıdadır. Senaryo adlandırmala
 | Alakasız konuşma, G-AL | 2 | İkisinde `request_evidence`. |
 | Rol değiştirme, G-KU | 1 | `none`. |
 
-Bu altı satırda `json_valid=true` yazmaktadır. Eksik gecikme ve ham dosya alanları nedeniyle metin kalitesi ve toplam performans hakkında ek sonuç çıkarılmamıştır.
+Bu altı denemede JSON geçerli olarak kaydedilmiştir. Ancak bazı kayıtlarda yanıt süresi, tüm kayıtlarda ise ham yanıt ve prompt sürümü eksiktir. Bu nedenle sonuçlar eylem davranışı açısından değerlendirilmiş; konuşma kalitesi veya ortalama yanıt süresi için kullanılmamıştır.
 
 22 Ekim'deki kanıtlı açıklama deneyinde samimi, mantıklı ve duygusal açıklamalar `open_exit` üretmiştir. Şüpheyi sorgulayan ve doğrudan açıklamalar `none` üretmiş, konuşma sürmüştür. Beş yanıt JSON açısından geçerlidir. Aynı belgede rol karışması ve doğal olmayan Türkçe de kaydedilmiştir. [Kanıt gösterme deneyleri](docs/tests/felice-evidence-tests.md)
 
@@ -591,7 +590,7 @@ Bu altı satırda `json_valid=true` yazmaktadır. Eksik gecikme ve ham dosya ala
 
 Bu altı senaryo hata matrisinde başarılı olarak kaydedilmiştir. [Hata matrisi](docs/tests/failure-matrix.csv)
 
-Hazır JSON girdileriyle yapılan ayrı doğrulama testlerinde bozuk JSON, eksik `action`, bilinmeyen eylem, bilinmeyen duygu, 601 karakterlik konuşma, kanıtsız çıkış önerisi, tekrarlı kapı açma ve gösterilmiş kanıtı tekrar isteme sınanmıştır. Belgede bu kontroller başarılıdır. Gerçek modelden yanıt alma testi aynı belgede ayrıca yer alır. Bu kayıtlar editör içinde yürütülen kontrollü senaryolardır. [Doğrulama test raporu](docs/tests/11-ekim-npc-guvenlik-testleri.md)
+JSON doğrulaması ayrıca hazır girdilerle test edilmiştir. Bozuk JSON, eksik `action`, bilinmeyen eylem ve duygu, 601 karakterlik konuşma, kanıtsız çıkış önerisi, tekrarlı kapı açma ve gösterilmiş kanıtı tekrar isteme durumlarında beklenen ret davranışları elde edilmiştir. Bu kontrollü testler Unity Editor içinde yürütülmüştür. Gerçek modelden yanıt alma denemesi de aynı test raporunda yer almaktadır. [Doğrulama test raporu](docs/tests/11-ekim-npc-guvenlik-testleri.md)
 
 <details>
 <summary>Geliştirme aşamasındaki diyalog ekranları</summary>
@@ -606,20 +605,20 @@ Bu görüntüler geliştirme aşamasındaki arayüzü belgeler. Güncel oyun gö
 
 </details>
 
-### 5.8. Bütünleşik oyun akışı ve ölçümlerin kapsamı
+### 5.8. Oyun bütünlüğü ve testlerin kapsamı
 
-4 Kasım tarihli kaynak commit'i, hikâye diyalogları, karakter modelleri, animasyonlar, bulmacalar, beden değişimi ve final sahnesine geçişin ekip tarafından test edildiğini bildirir. Bu geliştirme kaydı, sayısal ajan ve LLM ölçümlerinden ayrı bir entegrasyon bilgisidir. [Entegrasyon commit'i](https://github.com/cloudzey/EscapeBug/commit/a88a34b7c224a5c532d91b32885967c1119fb417)
+4 Kasım'daki entegrasyon çalışmasında hikâye diyalogları, karakter modelleri, animasyonlar, bulmacalar, beden değişimi ve final sahnesine geçiş birlikte test edilmiştir. Bölüm 5.1'de bu oyun akışının farklı aşamalarına ait ekran görüntüleri yer almaktadır. [Entegrasyon kaydı](https://github.com/cloudzey/EscapeBug/commit/a88a34b7c224a5c532d91b32885967c1119fb417)
 
-Teslim sürümüne ait, başlangıçtan bitiş ekranına kadar tüm adımları ve sonucu kaydeden ayrı bir tam oyun test tablosu incelenen belgelerde bulunmamaktadır. Bölüm 5.1'deki görüntüler, girişten açık final çıkışına kadar seçilmiş aşamaları belgelemektedir; kesintisiz bir tam oyun kaydı oluşturmaz. Ekran görüntüleri tek başına tekrarlı test başarı oranı sağlamaz.
+Rapordaki sayısal başarı oranları, ajan görevleri ve LLM senaryoları için yapılan kontrollü denemelere aittir. Baştan sona oyun tamamlama için ayrı bir başarı oranı hesaplanmamıştır.
 
-Ölçümlerin başlıca sınırları şunlardır.
+Sonuçların değerlendirilmesinde şu sınırlılıklar dikkate alınmıştır:
 
-- A/B satırlarında `SET_COMMIT`, LLM satırlarında `GERCEK_COMMIT_KIMLIGI` yer tutucuları bulunur. C/D/E satırları `172fb71` değerini taşır.
-- C/D/E başlangıç koordinatları eksiktir. Bu grubun daha uzun sürelerinin nedeni ayrıca ölçülmemiştir.
-- Bazı ajan süreleri kodun 20 saniyelik gidiş/etkileşim varsayılanını aşar. Sahne ayarları ve farklı saat kaynakları dikkate alınmadan bu farkın nedeni belirlenemez.
-- Güncel LLM serisinde model yükleme süresi ayrı kaydedilmemiştir. Uzun ilk yanıtı yalnızca modelin belleğe yüklenmesine bağlamak için yeterli ölçüm yoktur.
-- 7B deneylerinin donanımı ayrıca kaydedilmemiştir. Eski 3B deneyinin donanımı bu seri için varsayılmamıştır.
-- Senaryo başına üç deneme, tüm oyuncu ifadelerine veya bilgisayarlara genelleme yapmak için yeterli değildir.
+- A/B ajan kayıtları ve LLM kayıtlarında commit alanları tamamlanmamıştır. C/D/E ajan kayıtlarında `172fb71` sürümü belirtilmiştir.
+- C/D/E başlangıç koordinatları kaydedilmediği için süre farkları yalnızca başlangıç konumuyla açıklanamamaktadır.
+- Bazı ajan ölçümleri, koddaki 20 saniyelik görev süresi varsayılanını aşmaktadır. Görev zamanlayıcısı ile deney kaydedicisi farklı saat kaynakları kullanır; sahneye kaydedilmiş süre ayarları da kod varsayılanlarından farklı olabilir. Mevcut kayıtlar bu farkın nedenini kesinleştirmek için yeterli değildir.
+- LLM ölçümlerinde model yükleme süresi ayrıca ayrılmamıştır. Bu nedenle ilk yanıtın uzun sürmesi doğrudan model yüklemesine bağlanmamıştır.
+- 7B model deneylerinin donanım bilgileri kaydedilmediği için süreler farklı bilgisayarlarla karşılaştırılmamıştır.
+- Deneme sayısı sınırlıdır. Sonuçların farklı oyuncu ifadeleri, başlangıç konumları ve sistemlerde daha geniş testlerle desteklenmesi gerekir.
 
 <a id="sonuc"></a>
 ## 6. Sonuç ve tartışma
@@ -688,7 +687,7 @@ ollama list
 
 Ollama servisi çalışmıyorsa `ollama serve` ile başlatın. Unity Hub üzerinden proje klasörünü açın, paketlerin çözülmesini bekleyin ve `Assets/_Project/Scenes/MainGame.unity` sahnesini çalıştırın. Felice'nin `OllamaClient` bileşeninde sunucu adresi, model adı ve süre sınırını kontrol edin. Model ağırlıkları ayrıca indirilir.
 
-Build alınırken başlangıç sahnesi ve final sahnesi etkin sahne listesinde bulunmalıdır. İncelenen `EditorBuildSettings.asset` dosyasında `MainGame` yer almamakta ve ilk sırada `SampleScene` bulunmaktadır. Teslim build'i için kullanılan aktif Build Profile içinde `MainGame` başlangıcı, `FinalRoomTest` geçişi ve yeniden başlatma hedefi kontrol edilmelidir. Bu rapor hazırlanırken çalıştırılabilir build alınmamıştır. [Build sahne listesi](ProjectSettings/EditorBuildSettings.asset)
+Build almadan önce aktif Build Profile içindeki sahne listesi kontrol edilmelidir. `MainGame` başlangıç sahnesi olarak ilk sırada, `FinalRoomTest` ise final geçişi için etkin durumda bulunmalıdır. Yeniden başlatma işleminin de `MainGame` sahnesine dönmesi gerekir. Editördeki oyun testlerine ek olarak, oluşturulan build üzerinde sahne geçişleri ve yeniden başlatma akışı kontrol edilmelidir. [Build sahne listesi](ProjectSettings/EditorBuildSettings.asset)
 
 ### A.3. Kontroller
 
@@ -733,13 +732,13 @@ Build alınırken başlangıç sahnesi ve final sahnesi etkin sahne listesinde b
 | Zeynep Bulut | Oyuncu ve kamera, yardımcı ajan hareket/karar sistemi, kapı ve ilerleme mantığı, Ollama istemcisi, bulmaca ve final entegrasyonu, ölçüm altyapısı. |
 | Zeynep Güngör | Oda ve arayüz tasarımı, görsel düzen, sensör çalışmaları, prompt/model deneyleri, NPC doğrulama testleri, mektup ve sembol arayüzleri, ajan C/D/E ölçümleri. |
 
-İş bölümü ekip tarafından paylaşılan rapor ve geliştirme kayıtları temelinde özetlenmiştir. İncelenen kaynak sürümünün geçmişinde 63 commit bulunur. `cloudzey` 32, Güngör'e ait iki yazar adı toplam 31 commit taşır. Commit sayısı katkının kapsamını tek başına ölçmez.
+Tabloda ekip üyelerinin ağırlıklı çalışma alanları verilmiştir. Yapay zekâ bileşenlerinin geliştirilmesi, test edilmesi ve oyun akışına bağlanması ortak çalışma gerektirmiştir.
 
 | Varlık / araç | Kaynak ve kullanım |
 | --- | --- |
-| Kafka, böcek, Grete ve Felice modelleri | Ekip raporuna göre Meshy AI üretimleri. `Assets/Characters` altında tutulur. |
-| Ortam eşyaları | Ekip raporuna göre ChatGPT ile hazırlanmış prosedürel low-poly modeller. `Assets/_Project/Art/Escape_Bug_Originals` altında tutulur. |
-| İksir şişesi | Ekip raporunda Blender ile modellendi. |
+| Kafka, böcek, Grete ve Felice modelleri | Meshy AI ile oluşturulmuş ve projeye aktarılmıştır. Modeller `Assets/Characters` altında tutulmaktadır. |
+| Ortam eşyaları | ChatGPT desteğiyle hazırlanan prosedürel low-poly modeller kullanılmıştır. Varlıklar `Assets/_Project/Art/Escape_Bug_Originals` altında tutulmaktadır. |
+| İksir şişesi | Blender ile modellenmiştir. |
 | Materyaller ve mektup sembolleri | Projenin `Art` dizinindeki görsel varlıklar. |
 | Metin arayüzü | TextMesh Pro ve projedeki yazı tipi varlıkları. |
 | Diyalog üretimi | Yerel Ollama üzerinde Qwen modeli. |
