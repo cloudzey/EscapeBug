@@ -2484,7 +2484,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Grete, bu mektubu neden yazd\u0131n? Bana ne s\xF6ylemedin?"
+  m_text: "Grete, bu mektubu neden yazd\u0131n? Bana neden s\xF6ylemedin?"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4943,16 +4943,18 @@ MonoBehaviour:
   nextButton: {fileID: 1364086823}
   confrontationLines:
   - speaker: Felice
-    text: "Grete, bu mektubu neden yazd\u0131n? Bana ne s\xF6ylemedin?"
+    text: "Grete, bu mektubu neden yazd\u0131n? Bana neden s\xF6ylemedin?"
   - speaker: Grete
-    text: "Onu burada kar\u015F\u0131la\u015Faca\u011F\u0131 tehlikelerden korumak istedim. Ba\u015Fka se\xE7ene\u011Fim yoktu."
+    text: "Onu burada kar\u015F\u0131la\u015Faca\u011F\u0131 tehlikelerden korumak istedim. Ba\u015Fka bir amac\u0131m yoktu."
   - speaker: Felice
     text: "Kafka, art\u0131k s\u0131ra sende. Bana ger\xE7ekte ne oldu\u011Funu anlat."
   endingLines:
   - speaker: "\u0130nsan bedenindeki b\xF6cek"
     text: "Ha... ha... ha! Bunca zamand\u0131r benimle konu\u015Fuyordunuz. Ama kimin bedeninde oldu\u011Fumu bile anlamad\u0131n\u0131z!"
   - speaker: Kafka
-    text: "Hay\u0131r... Bu benim bedenim. O h\xE2lde... ben kimim?"
+    text: Bedenimi geri ver!
+  - speaker: "B\xF6cek"
+    text: "Bu binadan girdi\u011Fin gibi \xE7\u0131kabilece\u011Fini d\xFC\u015F\xFCnmen \xE7ok komik, Kafka."
 --- !u!4 &1583215967
 Transform:
   m_ObjectHideFlags: 0
